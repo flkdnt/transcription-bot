@@ -69,6 +69,6 @@ if __name__ == "__main__":
 
     # video_url = "https://youtu.be/q3Sb9PemsSo?si=w8aGr1Ss3Gt7eKz5"  # Replace with your desired YouTube URL
     video_url = "https://www.youtube.com/watch?v=HhBph2M5ZaU"
-    download_directory = "input"  # Specify your desired download directory
+    download_directory = "downloads"  # Specify your desired download directory
     download_file(video_url, download_directory)
     delete_webm_files(download_directory)

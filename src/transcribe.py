@@ -1,70 +1,64 @@
 import logging
 import os
 
-from faster_whisper import WhisperModel
+def transcribe_file(file, output):
 
+    if(file == None):
+        raise ValueError(f"Error! No file at Filepath {file}")
 
-def move_file(source_path, destination_path):
-    """
-    Moves a file from the source_path to the destination_path.
-
-    Args:
-        source_path: The full path to the file to be moved.
-        destination_path: The full path to where the file should be moved.
-    """
-    try:
-        os.rename(source_path, destination_path)
-        print(f"File '{source_path}' moved to '{destination_path}'")
-    except FileNotFoundError:
-        print(f"Error: File '{source_path}' not found.")
-    except OSError as e:
-        print(f"Error moving file: {e}")
-
-
-def transcribe_file(file):
     # faster_whisper configuration
     ## Other Options: "int8_float16", "int8"
-    compute_type = "float16"
+    compute_type = "int8"
     ## Devices: "cuda", "cpu"
-    device = "cuda"
+    device = "cpu"
     ## Model Size
-    model_size = "small"
+    ## Options: "base"," tiny", "small", "medium", "large-v3"
+    model_size = "large-v3"
 
     # Run
+    logger.info(f"Starting Transcription on {file}...")
     try:
+        from faster_whisper import WhisperModel
         model = WhisperModel(model_size, device=device, compute_type=compute_type)
-        segments, info = model.transcribe(file, beam_size=5)
+        segment_list = []
+        
+        segments, info = model.transcribe(file, beam_size=5, vad_filter=True)
 
-        print(
-            "Detected language '%s' with probability %f"
-            % (info.language, info.language_probability)
-        )
+        logger.info(f"Detected language '{info.language}' with probability %{info.language_probability}")
 
         for segment in segments:
-            print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+            cleaned_segment = ((segment.text).strip(' \t\n\r'))
+            segment_list.append(cleaned_segment)
+            logger.debug(cleaned_segment)
+        
+        with open( output,'w' ) as f:
+            for item in segment_list:
+                f.write( f"{item}\n" )
 
     except Exception as e:
         logging.error = f"Error Transcribing Audio: {e}"
+        raise RuntimeError("Error transcribing.")
         return None
+    
+    return segments
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-
-    # Input Dir
-    input_dir = "transcribe-bot/input"
+    logger = logging.getLogger(__name__)
 
     # Setup Audio Project
     ## Setup Root Audio Directory
-    audio_dir = "transcribe-bot/audio"
-    os.makedirs(audio_dir, exist_ok=True)
+    audio_dir = "downloads"
+    #os.makedirs(audio_dir, exist_ok=True)
     ## Setup Project Directory
-    audio_project = "AWS reInvent 2025 - Keynote with CEO Matt Garman.wav"
-    os.makedirs(f"{audio_dir}/{audio_project}", exist_ok=True)
+    audio_project = "Amazon_Bedrock_AgentCore_and_Claude_-_Transforming_business_with_agentic_AI_Amazon_Web_Services"
+    #os.makedirs(f"{audio_dir}/{audio_project}", exist_ok=True)
     ## Vars for Audio File
-    audio_file = f"{audio_project}.mp3"
-    audio_path = f"{audio_dir}/{audio_project}/{audio_file}"
-    move_file(f"{input_dir}/{audio_project}", audio_path)
+    audio_file = "video.wav"
+    transcript_file = "transcript.txt"
+    audio_path = f"/home/dante/dev/GitHub/transcription-bot/{audio_dir}/{audio_project}/{audio_file}"
+    transcript_path = f"/home/dante/dev/GitHub/transcription-bot/{audio_dir}/{audio_project}/{transcript_file}"
 
     # Transcribe
-    transcribe_file(audio_path)
+    transcribe_file(audio_path, transcript_path)

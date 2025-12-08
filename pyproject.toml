@@ -1,16 +1,19 @@
 [tool.poetry]
-name = "transcribe-bot"
-version = "0.1.0"
-description = "A bot for transcription tasks."
 authors = ["Dante"]
+description = "A bot for transcription tasks."
+name = "transcribe-bot"
+package-mode = false
 readme = "README.md"
+version = "0.1.0"
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+#ctranslate2 = "4.4.0"
 faster-whisper = ">=0.1.0"
 ffmpeg = ">=0.100.1"
+python = ">=3.10"
 yt-dlp = ">=2025.12.08"
 
 [build-system]
-requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
