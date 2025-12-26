@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 
 from faster_whisper import BatchedInferencePipeline, WhisperModel
 
@@ -14,6 +15,7 @@ def transcribe_file(
     device="cpu",
     model_size="medium",
     vad_filter=False,
+    logger=None,
 ):
     """Transcribes an audio file using faster_whisper.
 
@@ -51,12 +53,12 @@ def transcribe_file(
         raise ValueError("Error! Project directory not specified!")
 
     # Run
-    logger.info(f"Starting Transcription on {audio}...")
     try:
         model = WhisperModel(model_size, device=device, compute_type=compute_type)
         batched_model = BatchedInferencePipeline(model=model)
         segment_list = []
 
+        logger.info(f"{datetime.now()}: Starting Transcription of {project}/{audio}")
         segments, info = batched_model.transcribe(
             f"{project}/{audio}",
             batch_size=batch_size,
@@ -64,19 +66,19 @@ def transcribe_file(
             vad_filter=vad_filter,
         )
 
-        logger.info("Starting Transcription...")
         for segment in segments:
             cleaned_segment = segment.text.strip(" \t\n\r")
             segment_list.append(cleaned_segment)
             logger.debug(cleaned_segment)
+        logger.info(f"{datetime.now()}: Stopping Transcription of {project}/{audio}")
 
         with open(f"{project}/{transcript}", "w") as f:
             for item in segment_list:
                 f.write(f"{item}")
-        logger.info(f"Transcript created at {project}/{transcript}")
+        logger.info(f"{datetime.now()}: Transcript created at {project}/{transcript}")
 
     except Exception as e:
-        logger.error(f"Error Transcribing Audio: {e}")
+        logger.error(f"{datetime.now()}: Error Transcribing Audio: {e}")
         raise RuntimeError("Error transcribing.")
         return None
 
@@ -94,4 +96,10 @@ if __name__ == "__main__":
     project_path = f"{repo_root}/{audio_dir}/{audio_project}"
 
     # Transcribe
-    transcribe_file(project_path, batch_size=4, model_size="large-v1", vad_filter=True)
+    transcribe_file(
+        project_path,
+        batch_size=4,
+        model_size="large-v1",
+        vad_filter=True,
+        logger=logger,
+    )
