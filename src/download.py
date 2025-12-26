@@ -61,6 +61,6 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    video_url = "https://www.youtube.com/watch?v=HhBph2M5ZaU"
+    video_url = ""
     download_directory = "downloads"  # Specify your desired download directory
     download_file(video_url, download_directory)

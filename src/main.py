@@ -133,7 +133,7 @@ if __name__ == "__main__":
     # Batch size (number of URLs to process at a time)
     url_batch_size = 10
     # URL file
-    url_file = "keynotes.txt"
+    url_file = ""
     noplaylist = "True"
 
     main(

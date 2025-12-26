@@ -177,16 +177,14 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     # --- LLM Configuration ---
-    ollama_Model = "gemma3:4b"
+    ollama_model = ""
 
     repo_root = os.getcwd()
     prompt_file = f"{repo_root}/prompts/transcript.prompt.md"
-    json_file = transcript = (
-        f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/video.info.json"
-    )
-    transcript = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/video.en.vtt"
-    temp_transcript = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/video.en.vtt.txt"
-    final_transcript = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/edited_transcript.txt"
+    json_file = transcript = f"{repo_root}/downloads/FOLDER/video.info.json"
+    transcript = f"{repo_root}/downloads/FOLDER/video.en.vtt"
+    temp_transcript = f"{repo_root}/downloads/FOLDER/video.en.vtt.txt"
+    final_transcript = f"{repo_root}/downloads/FOLDER/edited_transcript.txt"
 
     logger.info(f"{datetime.now()}: starting transcript edit")
     # This is only for vtt files
@@ -201,7 +199,7 @@ if __name__ == "__main__":
     for page in pages:
         page = f"{details}{page}"
     edited_text = send_transcript(
-        pages, instructions, ollama_Model, num_ctx=5000, logger=logger
+        pages, instructions, ollama_model, num_ctx=5000, logger=logger
     )
 
     if edited_text:
