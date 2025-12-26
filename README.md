@@ -1,12 +1,24 @@
-# transcribe-bot
-This is a bot for transcription tasks.
+# Transcription Bot Project
 
-## Activating the Virtual Environment
 
-To use the project, you need to activate the virtual environment. Here’s how:
+# Usage
 
-1. `python3 -m venv .venv`
-2. `source .venv/bin/activate`
-3. `poetry install`
+This project utilizes Poetry for dependency management and virtual environment creation. Please install Poetry before running this project.
 
-Once the virtual environment is active, your shell prompt will change to indicate this (e.g., `(venv) $`).
+1.  **Install Dependencies:**
+    ```bash
+    poetry install
+    ```
+    This command will:
+    *   Create a virtual environment for the project.
+    *   Install all the dependencies listed in the `pyproject.toml` file.
+
+2. **Execute the Script:**
+    ```bash
+    poetry run python src/main.py
+    ```
+    This ensures your script runs within the isolated Poetry-managed environment.
+
+## Dependency Management
+
+Poetry is used for managing dependencies.  It utilizes a `pyproject.toml` file to track and manage all project dependencies.  Changes to dependencies are handled using `poetry add <package>` or `poetry remove <package>`.
