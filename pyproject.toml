@@ -1,19 +1,17 @@
-[tool.poetry]
-authors = ["Dante"]
-description = "A bot for transcription tasks."
-name = "transcribe-bot"
+[project]
+authors = [{name = "Dante"}]
+dependencies = [
+    "faster-whisper>=1.2.1",
+    "ffmpeg>=1.4",
+    "langchain-core>=1.2.5",
+    "langchain-ollama>=1.0.1",
+    "langchain-text-splitters>=1.1.0",
+    "tiktoken>=0.12.0",
+    "yt-dlp>=2025.12.8",
+]
+description = "A tool to Transcribe and summarize video content"
+name = "transcription-bot"
 package-mode = false
 readme = "README.md"
+requires-python = ">=3.13"
 version = "0.1.0"
-
-[tool.poetry.dependencies]
-#ctranslate2 = "4.4.0"
-faster-whisper = ">=0.1.0"
-ffmpeg = ">=0.100.1"
-python = ">=3.10"
-yt-dlp = ">=2025.12.08"
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
-
