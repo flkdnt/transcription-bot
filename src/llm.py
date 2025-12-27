@@ -5,10 +5,10 @@ from typing import List, Optional
 from langchain_ollama import ChatOllama
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+logger = logging.getLogger(__name__)
 
-def paginate_transcript(
-    transcription_text, chunk_size=1000, chunk_overlap=0, logger=None
-):
+
+def paginate_transcript(transcription_text, chunk_size=1000, chunk_overlap=0):
     """
     Generates a list of pages from the transcription text, suitable for inclusion within an LLM prompt.
 

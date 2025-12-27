@@ -10,6 +10,8 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 
+logger = logging.getLogger(__name__)
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)

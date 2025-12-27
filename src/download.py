@@ -4,8 +4,10 @@ from datetime import datetime
 
 import yt_dlp
 
+logger = logging.getLogger(__name__)
 
-def download_file(url, output_dir, noplaylist="False", logger=None):
+
+def download_file(url, output_dir, noplaylist="False"):
     """
     Downloads a file from a URL using yt-dlp.
 
@@ -49,6 +51,8 @@ def download_file(url, output_dir, noplaylist="False", logger=None):
     logger.info(f"{datetime.now()}: Starting Download of {url}...")
 
     with yt_dlp.YoutubeDL(params=ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        logger.info(info)  # Print the title of the video
         ydl.download(url)
 
     logger.info(f"{datetime.now()}: ...Downloaded to: '{output_dir}'")
@@ -57,7 +61,6 @@ def download_file(url, output_dir, noplaylist="False", logger=None):
 
 
 if __name__ == "__main__":
-    # Configure Logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 

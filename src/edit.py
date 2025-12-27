@@ -6,6 +6,8 @@ from datetime import datetime
 
 from llm import paginate_transcript, send_transcript
 
+logger = logging.getLogger(__name__)
+
 
 def extract_metadata(file_path):
     """

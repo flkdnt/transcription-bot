@@ -4,6 +4,8 @@ from datetime import datetime
 
 from faster_whisper import BatchedInferencePipeline, WhisperModel
 
+logger = logging.getLogger(__name__)
+
 
 def transcribe_file(
     project,
@@ -15,7 +17,6 @@ def transcribe_file(
     device="cpu",
     model_size="medium",
     vad_filter=False,
-    logger=None,
 ):
     """Transcribes an audio file using faster_whisper.
 
