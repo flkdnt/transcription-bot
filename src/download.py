@@ -58,6 +58,7 @@ def download_audio(url, output_dir, noplaylist="False"):
     }
 
     download = ytdlp_download(options, url)
+    logger.debug(f"{datetime.now()}:download_video: var download = {download} ")
 
     if validate_file(download, "video", ".wav"):
         logger.info(
@@ -112,6 +113,7 @@ def download_subtitles(url, output_dir, noplaylist="False"):
     }
 
     download = ytdlp_download(options, url)
+    logger.debug(f"{datetime.now()}:download_video: var download = {download} ")
 
     if validate_file(download, "video", ".vtt"):
         logger.info(
@@ -171,6 +173,7 @@ def download_video(url, output_dir, noplaylist="False"):
     }
 
     download = ytdlp_download(options, url)
+    logger.debug(f"{datetime.now()}:download_video: var download = {download} ")
 
     if validate_file(download, "video", ".m4a"):
         logger.info(
@@ -197,15 +200,19 @@ def format_path(filename):
         str: The path string with the filename removed.
              Returns None if the input `filename` is empty.
     """
+
     if not filename:
         logger.warning("No parameter 'filename' passed to format_path")
         return None
 
     parts = filename.split(os.sep)
     if len(parts) > 1:
-        return os.path.join(*parts[:-1])
-    else:
-        return filename
+        if parts[0] == "":
+            parts[0] = "/"
+    dir = os.path.join(*parts[:-1])
+    # logger.debug(f"{datetime.now()}:format_path: var dir = {dir}")
+
+    return dir
 
 
 def validate_file(path, start_filter, end_filter):
@@ -221,7 +228,7 @@ def validate_file(path, start_filter, end_filter):
     try:
         files = os.listdir(path)
         found = False
-        logger.info(f"{datetime.now()}: validate_files - 'files' var: {files}")
+        logger.debug(f"{datetime.now()}: validate_files - 'files' var: {files}")
         for filename in files:
             if filename.startswith(start_filter) and filename.endswith(end_filter):
                 found = True
@@ -230,7 +237,8 @@ def validate_file(path, start_filter, end_filter):
         return found
 
     except FileNotFoundError:
-        return None
+        logger.error(f"{datetime.now()}: Directory not found: {path}")
+        raise  # Raise the FileNotFoundError
 
 
 def ytdlp_download(options, url):
@@ -259,6 +267,9 @@ def ytdlp_download(options, url):
         ydl.close()
 
     fname = format_path(fname)
+    logger.debug(
+        f"{datetime.now()}:ytdlp_download: var fname( after format_path ) = {fname} "
+    )
 
     return fname
 
