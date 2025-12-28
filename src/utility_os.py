@@ -7,18 +7,26 @@ logger = logging.getLogger(__name__)
 
 def delete_media_files(directory):
     """
-    Deletes any file starting with "video", excluding video.info.json
-    from the given directory.
+    Deletes all files from a specified directory that start with the prefix "video".
+    These files are likely downloaded media files, possibly from a service like YouTube (yt-dlp).
+    Example Files: video.info.json, video.webm, video.wav, video.en.vtt, etc.
+
+    Args:
+        directory (str): The path to the directory from which to delete files.
+
+    Returns:
+        None.  The function performs the deletion directly.
+
+    Raises:
+        Exception: If any error occurs during the file deletion process.
     """
     try:
         for root, directories, files in os.walk(directory):
             for filename in files:
                 filepath = os.path.join(root, filename)
                 if os.path.isfile(filepath) and filename.startswith("video"):
-                    logger.debug(f"{datetime.now()}:Found file: {filepath}")
-                    if filename != "video.info.json":
-                        os.remove(filepath)
-                        logger.debug(f"{datetime.now()}: Deleted {filepath}")
+                    os.remove(filepath)
+                    logger.debug(f"{datetime.now()}: Deleted {filepath}")
     except Exception as e:
         logger.error(f"{datetime.now()}: Error deleting files: {e}")
 
