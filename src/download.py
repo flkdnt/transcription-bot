@@ -4,6 +4,8 @@ from datetime import datetime
 
 import yt_dlp
 
+from utility_os import format_path, validate_file
+
 logger = logging.getLogger(__name__)
 
 
@@ -59,6 +61,7 @@ def download_audio(url, output_dir, noplaylist="False"):
     }
 
     download = ytdlp_download(options, url)
+    download = format_path(download)
     logger.debug(f"{datetime.now()}:download_video: var download = {download} ")
 
     if validate_file(download, "video", ".wav"):
@@ -115,18 +118,27 @@ def download_subtitles(url, output_dir, noplaylist="False"):
     }
 
     download = ytdlp_download(options, url)
+    home_folder = format_path(download)
     logger.debug(f"{datetime.now()}:download_video: var download = {download} ")
 
-    if validate_file(download, "video", ".vtt"):
+    filepath = validate_file(home_folder, "video", ".vtt", return_path=True)
+
+    if filepath:
         logger.info(
-            f"{datetime.now()}: Subtitle File video*.vtt has been Downloaded to: {download}"
+            f"{datetime.now()}: Subtitle File video*.vtt has been Downloaded to: {home_folder}"
         )
-        return download
+        # Rename to a consistent filename
+        new_name = f"{home_folder}/subtitles.txt"
+        os.rename(filepath, new_name)
+        logger.debug(
+            f"{datetime.now()}: Subtitle File video*.vtt has been Renamed to: {new_name}"
+        )
+        # return directory
+        return home_folder
     else:
         logger.info(
             f"{datetime.now()}: Subtitle File video*.vtt has Not been Downloaded!"
         )
-        return None
 
 
 def download_video(url, output_dir, noplaylist="False"):
@@ -176,6 +188,7 @@ def download_video(url, output_dir, noplaylist="False"):
     }
 
     download = ytdlp_download(options, url)
+    download = format_path(download)
     logger.debug(f"{datetime.now()}:download_video: var download = {download} ")
 
     if validate_file(download, "video", ".m4a"):
@@ -186,62 +199,6 @@ def download_video(url, output_dir, noplaylist="False"):
     else:
         logger.info(f"{datetime.now()}: Video File video.m4a has Not been Downloaded!")
         return None
-
-
-def format_path(filename):
-    """
-    Trims the filename from the end of a path and returns the path itself.
-
-    This function removes the filename from the end of a given path string,
-    returning the remaining path. It handles cases where the input filename
-    is empty or if the path consists of only a single part.
-
-    Args:
-        filename (str): The path string from which to remove the filename.
-
-    Returns:
-        str: The path string with the filename removed.
-             Returns None if the input `filename` is empty.
-    """
-
-    if not filename:
-        logger.warning("No parameter 'filename' passed to format_path")
-        return None
-
-    parts = filename.split(os.sep)
-    if len(parts) > 1:
-        if parts[0] == "":
-            parts[0] = "/"
-    dir = os.path.join(*parts[:-1])
-    # logger.debug(f"{datetime.now()}:format_path: var dir = {dir}")
-
-    return dir
-
-
-def validate_file(path, start_filter, end_filter):
-    """
-    Searches for a file within a given path that starts with 'start_filter' and ends with 'end_filter'
-
-    Args:
-        path: The directory to search within.
-
-    Returns:
-        True if file exists or False if it doesn't exists
-    """
-    try:
-        files = os.listdir(path)
-        found = False
-        logger.debug(f"{datetime.now()}: validate_files - 'files' var: {files}")
-        for filename in files:
-            if filename.startswith(start_filter) and filename.endswith(end_filter):
-                found = True
-                break
-
-        return found
-
-    except FileNotFoundError:
-        logger.error(f"{datetime.now()}: Directory not found: {path}")
-        raise  # Raise the FileNotFoundError
 
 
 def ytdlp_download(options, url):
@@ -268,11 +225,6 @@ def ytdlp_download(options, url):
         info = ydl.extract_info(url, download=True)
         fname = ydl.prepare_filename(info)
         ydl.close()
-
-    fname = format_path(fname)
-    logger.debug(
-        f"{datetime.now()}:ytdlp_download: var fname( after format_path ) = {fname} "
-    )
 
     return fname
 

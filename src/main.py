@@ -3,57 +3,12 @@ import os
 from datetime import datetime
 
 from download import download_audio, download_subtitles
-from edit import (
-    extract_metadata,
-    format_vtt_file,
-    read_file,
-    write_file,
-)
-from llm import paginate_transcript, send_transcript
+from edit import extract_metadata, format_vtt_file
 from transcribe import transcribe_file
+from utility_llm import paginate_transcript, send_transcript
+from utility_os import read_file, write_file
 
 logger = logging.getLogger(__name__)
-
-
-def delete_media_files(directory):
-    """
-    Deletes any file starting with "video", excluding video.info.json, video*.vtt
-    from the given directory.
-    """
-    try:
-        for root, directories, files in os.walk(directory):
-            for filename in files:
-                filepath = os.path.join(root, filename)
-                if os.path.isfile(filepath) and filename.startswith("video"):
-                    logger.debug(f"{datetime.now()}:Found file: {filepath}")
-                    if filename != "video.info.json" and not filename.endswith(".vtt"):
-                        os.remove(filepath)
-                        logger.info(f"{datetime.now()}: Deleted {filepath}")
-    except Exception as e:
-        logger.error(f"{datetime.now()}: Error deleting files: {e}")
-
-
-def find_file(path, start_filter, end_filter):
-    """
-    Searches for a file within a given path that starts with 'start_filter' and ends with 'end_filter'
-
-    Args:
-        path: The directory to search within.
-
-    Returns:
-        Full filepath
-    """
-    try:
-        files = os.listdir(path)
-        logger.debug(f"{datetime.now()}:find_file: var path = {path}")
-        for filename in files:
-            if filename.startswith(start_filter) and filename.endswith(end_filter):
-                found = f"{path}/{filename}"
-                return found
-
-    except FileNotFoundError:
-        logger.error(f"Directory not found: {path}")
-        raise  # Raise the FileNotFoundError
 
 
 def main(
@@ -196,7 +151,7 @@ def main(
                     logger.info(f"{datetime.now()}: Subtitle Download Finished")
                     project_directory = f"{subtitle}"
                     project_transcript = f"{project_directory}/transcript.txt"
-                    project_subtitles = find_file(project_directory, "video", ".vtt")
+                    project_subtitles = f"{project_directory}/subtitles.txt"
 
                     logger.debug(
                         f"project_directory: {project_directory}\nproject_transcript: {project_transcript}\nproject_subtitles: {project_subtitles}"
@@ -225,7 +180,7 @@ if __name__ == "__main__":
     # Batch size (number of URLs to process at a time)
     url_batch_size = 10
     # URL file
-    url_file = "test.txt"
+    url_file = "keynotes.txt"
     noplaylist = "True"
 
     main(

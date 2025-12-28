@@ -4,7 +4,8 @@ import os
 import re
 from datetime import datetime
 
-from llm import paginate_transcript, send_transcript
+from utility_llm import paginate_transcript, send_transcript
+from utility_os import read_file, write_file
 
 logger = logging.getLogger(__name__)
 
@@ -45,10 +46,10 @@ def extract_metadata(file_path):
 
     except FileNotFoundError:
         logging.error(f"File not found at {file_path}")
-        return None
+        raise
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-        return None
+        raise
 
 
 def format_vtt_file(vtt_file_path, output_file_path):
@@ -107,72 +108,10 @@ def format_vtt_file(vtt_file_path, output_file_path):
 
     except FileNotFoundError:
         logger.error(f"{datetime.now()}: Error: File not found at {vtt_file_path}")
+        raise
     except Exception as e:
         logger.error(f"{datetime.now()}: An error occurred: {e}")
-
-
-def read_file(file_path):
-    """
-    Reads the entire contents of a file and returns it as a string.
-
-    This function reads the entire content of a file and returns it as a single string.
-    It handles potential errors gracefully, such as a file not being found.
-
-    Args:
-        file_path (str): The path to the file to be read.
-
-    Returns:
-        str: The contents of the file as a string.
-             Returns None if the file cannot be read.
-
-    Raises:
-        None
-    """
-
-    try:
-        with open(file_path, "r") as f:
-            contents = f.read()
-        return contents
-    except FileNotFoundError:
-        logger.error(f"{datetime.now()}: File not found at {file_path}")
-        return None
-    except Exception as e:
-        logger.error(f"{datetime.now()}: An error occurred: {e}")
-        return None
-
-
-def write_file(file_path, content, mode="w"):
-    """
-    Writes content to a file.
-
-    This function writes the provided content to a file.  It supports various modes,
-    including writing (default), appending, and exclusive creation.
-
-    Args:
-        file_path (str): The path to the file to be written to.
-        content (str or list): The content to write to the file.
-                              If a list is provided, it will be joined into a string.
-        mode (str, optional): The file writing mode. Defaults to 'w' (write).
-                              Other options include 'a' (append) and 'x' (exclusive creation).
-
-    Returns:
-        None
-
-    Raises:
-        None
-    """
-
-    try:
-        with open(file_path, mode) as f:
-            if type(content) is list:
-                f.write("".join(str(i) for i in content))
-            if type(content) is str:
-                f.write(content)
-        logger.info(f"{datetime.now()}: Successfully wrote to {file_path}")
-    except Exception as e:
-        logger.info(
-            f"{datetime.now()}: An error occurred while writing to {file_path}: {e}"
-        )
+        raise
 
 
 if __name__ == "__main__":
