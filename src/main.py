@@ -6,7 +6,7 @@ from download import download_audio, download_subtitles
 from edit import extract_metadata, format_vtt_file
 from transcribe import transcribe_file
 from utility_llm import paginate_transcript, send_transcript
-from utility_os import read_file, write_file
+from utility_os import delete_media_files, read_file, write_file
 
 logger = logging.getLogger(__name__)
 
@@ -162,9 +162,10 @@ def main(
                     format_vtt_file(project_subtitles, project_transcript)
                     logger.info(f"{datetime.now()}: Finished transcript edit")
 
-            ## Step 4: Cleanup Files
-            # logger.info(f"{datetime.now()}: Deleting Media Files")
-            # delete_media_files(audio)
+            # Step 4: Cleanup Files
+            # Delete media files now that we have a transcript to process
+            logger.info(f"{datetime.now()}: Deleting Media Files")
+            delete_media_files(download_directory)
 
         logger.info(f"{datetime.now()}: Main Function Finished")
 

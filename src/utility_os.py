@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 def delete_media_files(directory):
     """
-    Deletes any file starting with "video", excluding video.info.json, video*.vtt
+    Deletes any file starting with "video", excluding video.info.json
     from the given directory.
     """
     try:
@@ -16,9 +16,9 @@ def delete_media_files(directory):
                 filepath = os.path.join(root, filename)
                 if os.path.isfile(filepath) and filename.startswith("video"):
                     logger.debug(f"{datetime.now()}:Found file: {filepath}")
-                    if filename != "video.info.json" and not filename.endswith(".vtt"):
+                    if filename != "video.info.json":
                         os.remove(filepath)
-                        logger.info(f"{datetime.now()}: Deleted {filepath}")
+                        logger.debug(f"{datetime.now()}: Deleted {filepath}")
     except Exception as e:
         logger.error(f"{datetime.now()}: Error deleting files: {e}")
 
