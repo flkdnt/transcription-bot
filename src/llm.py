@@ -41,8 +41,7 @@ def paginate_transcript(transcription_text, chunk_size=1000, chunk_overlap=0):
         return texts
 
     except Exception as e:
-        logger.error(f"{datetime.now()}: An error occurred: {e}")
-        return None  # Or raise the exception, depending on desired behavior
+        raise e
 
 
 def send_transcript(
