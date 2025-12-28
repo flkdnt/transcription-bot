@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 
 from utility_llm import paginate_transcript, send_transcript
-from utility_os import read_file, write_file
+from utility_os import format_path, read_file, write_file
 
 logger = logging.getLogger(__name__)
 
@@ -29,26 +29,30 @@ def extract_metadata(file_path):
             video_info = json.loads(data)
         except json.JSONDecodeError:
             logging.error(f"Invalid JSON format in {file_path}")
-            return None
+            raise
 
-        extracted_data = "\n\n**TRANSCRIPT DETAILS**\n\n"
-        extracted_data += "*Please do not include this section in the transcript*!\n"
+        extracted_data = ""
 
         # Extract upload_date
         extracted_data += f"* Upload Date: {video_info.get('upload_date')}\n"
         extracted_data += f"* Channel: {video_info.get('channel')}\n"
         extracted_data += f"* Title: {video_info.get('fulltitle')}\n"
-        extracted_data += f"* URL: {video_info.get('webpage_url_domain')}\n"
+        extracted_data += f"* URL: {video_info.get('webpage_url')}\n"
         extracted_data += f"* Description: {video_info.get('description')}\n"
-        extracted_data += "\n\n**TRANSCRIPT**\n"
+
+        # Write MD to File for future processing
+        home_folder = format_path(file_path)
+        details_file = f"{home_folder}/description.md"
+        logger.debug(f"{datetime.now()}: details file location: {details_file}")
+        write_file(details_file, extracted_data)
 
         return extracted_data
 
     except FileNotFoundError:
-        logging.error(f"File not found at {file_path}")
+        logging.error(f"{datetime.now()}: File not found at {file_path}")
         raise
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logging.error(f"{datetime.now()}: An error occurred: {e}")
         raise
 
 
@@ -134,7 +138,10 @@ if __name__ == "__main__":
     # This section is only for Whisper transcripts
     original_text = read_file(temp_transcript)
     instructions = read_file(prompt_file)
-    details = extract_metadata(json_file)
+    details = "\n\n**TRANSCRIPT DETAILS**\n\n"
+    details += "*Please do not include this section in the transcript*!\n"
+    details += extract_metadata(json_file)
+    details += "\n\n**TRANSCRIPT**\n"
     instructions = f"{instructions}{details}"
     pages = paginate_transcript(original_text, chunk_size=4000, logger=logger)
     for page in pages:
