@@ -64,6 +64,7 @@ def main(
     url_batch_size=10,
     noplaylist="True",
     ollama_model="llama3.1:8b",
+    ollama_host="http://localhost:11434",
 ):
     """
     Orchestrates the transcription process from a list of URLs.
@@ -127,54 +128,67 @@ def main(
                     )
                     logger.info(f"{datetime.now()}: Download Finished")
                     # Step 2-3: Transcribe Audio in Batches
-                    logger.info(f"{datetime.now()}: Batch Transcription is starting")
-                    transcribe_file(
-                        f"{audio}/video.wav",
-                        batch_size=8,
-                        model_size="medium",
-                        vad_filter=True,
-                    )
-                    logger.info(f"{datetime.now()}: Batch Transcription finished")
-                    # Step 2-4: Delete media files
-                    logger.info(f"{datetime.now()}: Deleting Media Files")
-                    delete_media_files(audio)
-
-                    # Step 3: Format Transcripts
                     # Transcript Variables
-                    project_directory = f"{repo_root}/{audio}"
+                    project_directory = f"{audio}"
                     project_json = f"{project_directory}/video.info.json"
                     project_transcript = f"{project_directory}/transcript.txt"
                     project_subtitles = f"{project_directory}/subtitles.txt"
 
-                    logger.info(f"{datetime.now()}: Starting transcript edit")
-
-                    # Pre-Processing
-                    sub_text = read_file(project_subtitles)
-                    transcript_instructions = read_file(transcript_prompt)
-                    transcript_details = extract_metadata(project_json)
-                    transcript_instructions = (
-                        f"{transcript_instructions}{transcript_details}"
-                    )
-                    transcript_pages = paginate_transcript(sub_text, chunk_size=4000)
-                    for page in transcript_pages:
-                        page = f"{transcript_details}{page}"
-
-                    # Send to llm for processing
-                    edited_text = send_transcript(
-                        transcript_pages,
-                        transcript_instructions,
-                        ollama_model,
-                        num_ctx=5000,
-                        logger=logger,
-                    )
-
-                    if edited_text:
-                        write_file(project_transcript, edited_text)
-                    else:
-                        logger.warning(
-                            f"{datetime.now()}: No response to write to file!"
+                    # Transcribe
+                    if os.path.exists(project_subtitles):
+                        logger.info(
+                            f"{datetime.now()}: Subtitles {project_subtitles} already exist, skipping whisper transcription"
                         )
-                    logger.info(f"{datetime.now()}: Finished transcript edit")
+                    else:
+                        logger.info(
+                            f"{datetime.now()}: Batch Transcription is starting"
+                        )
+                        transcribe_file(
+                            f"{audio}",
+                            batch_size=8,
+                            model_size="medium",
+                            vad_filter=True,
+                        )
+                        logger.info(f"{datetime.now()}: Batch Transcription finished")
+
+                    # Step 3: Format Transcripts
+                    if os.path.exists(project_transcript):
+                        logger.info(
+                            f"{datetime.now()}: Transcript {project_transcript} already exists, skipping transcript edit"
+                        )
+                    else:
+                        logger.info(f"{datetime.now()}: Starting transcript edit")
+
+                        # Pre-Processing
+                        sub_text = read_file(project_subtitles)
+                        transcript_instructions = read_file(transcript_prompt)
+                        transcript_details = extract_metadata(project_json)
+                        transcript_instructions = (
+                            f"{transcript_instructions}{transcript_details}"
+                        )
+                        transcript_pages = paginate_transcript(
+                            sub_text, chunk_size=4000
+                        )
+                        for page in transcript_pages:
+                            page = f"{transcript_details}{page}"
+
+                        # Send to llm for processing
+                        edited_text = send_transcript(
+                            transcript_pages,
+                            transcript_instructions,
+                            ollama_model,
+                            host=ollama_host,
+                            num_ctx=5000,
+                            logger=logger,
+                        )
+
+                        if edited_text:
+                            write_file(project_transcript, edited_text)
+                        else:
+                            logger.warning(
+                                f"{datetime.now()}: No response to write to file!"
+                            )
+                            logger.info(f"{datetime.now()}: Finished transcript edit")
 
                 else:
                     # Step 3: Format Transcript
@@ -193,6 +207,10 @@ def main(
                     format_vtt_file(project_subtitles, project_transcript)
                     logger.info(f"{datetime.now()}: Finished transcript edit")
 
+            ## Step 4: Cleanup Files
+            # logger.info(f"{datetime.now()}: Deleting Media Files")
+            # delete_media_files(audio)
+
         logger.info(f"{datetime.now()}: Main Function Finished")
 
     except Exception as e:
@@ -207,11 +225,12 @@ if __name__ == "__main__":
     # Batch size (number of URLs to process at a time)
     url_batch_size = 10
     # URL file
-    url_file = ""
+    url_file = "test.txt"
     noplaylist = "True"
 
     main(
         ollama_model="gemma3:4b",
+        ollama_host="http://ollama.hf.io:11434",
         repo_root=repo_root,
         url_file=url_file,
         url_batch_size=url_batch_size,
