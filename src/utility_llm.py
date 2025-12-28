@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime
-from typing import List, Optional
 
 from langchain_ollama import ChatOllama
 from langchain_text_splitters import RecursiveCharacterTextSplitter
