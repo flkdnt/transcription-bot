@@ -2,8 +2,17 @@ import logging
 import os
 from datetime import datetime
 
-from download import download_file
+from download import download_audio, download_subtitles
+from edit import (
+    extract_metadata,
+    format_vtt_file,
+    read_file,
+    write_file,
+)
+from llm import paginate_transcript, send_transcript
 from transcribe import transcribe_file
+
+logger = logging.getLogger(__name__)
 
 
 def delete_media_files(directory):
@@ -24,6 +33,29 @@ def delete_media_files(directory):
         logger.error(f"{datetime.now()}: Error deleting files: {e}")
 
 
+def find_file(path, start_filter, end_filter):
+    """
+    Searches for a file within a given path that starts with 'start_filter' and ends with 'end_filter'
+
+    Args:
+        path: The directory to search within.
+
+    Returns:
+        Full filepath
+    """
+    try:
+        files = os.listdir(path)
+        logger.debug(f"{datetime.now()}:find_file: var path = {path}")
+        for filename in files:
+            if filename.startswith(start_filter) and filename.endswith(end_filter):
+                found = f"{path}/{filename}"
+                return found
+
+    except FileNotFoundError:
+        logger.error(f"Directory not found: {path}")
+        raise  # Raise the FileNotFoundError
+
+
 def main(
     repo_root: str,
     url_file: str,
@@ -31,6 +63,7 @@ def main(
     input_dir="input",
     url_batch_size=10,
     noplaylist="True",
+    ollama_model="llama3.1:8b",
 ):
     """
     Orchestrates the transcription process from a list of URLs.
@@ -57,6 +90,7 @@ def main(
     logger.info(f"{datetime.now()}: Main Function Starting")
     # Build full directories
     download_directory = f"{repo_root}/{audio_dir}"
+    transcript_prompt = f"{repo_root}/prompts/transcript.prompt.md"
     url_file = f"{repo_root}/{input_dir}/{url_file}"
 
     # Script Start
@@ -71,52 +105,93 @@ def main(
             batch_number = i // url_batch_size
 
             logger.info(f"{datetime.now()}: Starting Batch {batch_number}")
-            # Step 2-1: For each URL...
+            # For each URL...
             for url in batch_urls:
                 url = url.strip()
 
-                logger.info(f"{datetime.now()}: Download Starting")
-                # ...Download audio
-                download_file(
-                    url, download_directory, noplaylist=noplaylist, logger=logger
-                )
-                logger.info(f"{datetime.now()}: Download Finished")
+                logger.info(f"{datetime.now()}: Subtitle Download Starting")
 
-            ## Step 2-2: Find directories containing "video.wav"
-            valid_dirs = [
-                d
-                for d in os.listdir(download_directory)
-                if os.path.isdir(os.path.join(download_directory, d))
-                and any(
-                    os.path.join(download_directory, d, f)
-                    for f in os.listdir(os.path.join(download_directory, d))
-                    if "video.wav" in f
+                # Step 2-1: Download Subtitles
+                subtitle = download_subtitles(
+                    url, download_directory, noplaylist=noplaylist
                 )
-                and not any(
-                    os.path.join(download_directory, d, f)
-                    for f in os.listdir(os.path.join(download_directory, d))
-                    if ".vtt" in f
-                )
-            ]
-            logger.info(f"{datetime.now()}: Videos Without Subtitles: {valid_dirs}")
-
-            # Step 2-3: Transcribe Audio in Batches
-            if not valid_dirs:
-                logger.info(f"{datetime.now()}: Batch Transcription is starting")
-                for dir in valid_dirs:
-                    # Transcribe audio
+                logger.debug(f"{datetime.now()}: Subtitle var 'subtitle': {subtitle}")
+                if subtitle is None:
+                    # We have to transcript the audio ourselves if no subtitles exist
+                    logger.info(
+                        f"{datetime.now()}: Subtitles Dont Exist! Downloading Audio"
+                    )
+                    # Step 2-2: Download video as audio file
+                    audio = download_audio(
+                        url, download_directory, noplaylist=noplaylist
+                    )
+                    logger.info(f"{datetime.now()}: Download Finished")
+                    # Step 2-3: Transcribe Audio in Batches
+                    logger.info(f"{datetime.now()}: Batch Transcription is starting")
                     transcribe_file(
-                        f"{download_directory}/{dir}",
+                        f"{audio}/video.wav",
                         batch_size=8,
                         model_size="medium",
                         vad_filter=True,
+                    )
+                    logger.info(f"{datetime.now()}: Batch Transcription finished")
+                    # Step 2-4: Delete media files
+                    logger.info(f"{datetime.now()}: Deleting Media Files")
+                    delete_media_files(audio)
+
+                    # Step 3: Format Transcripts
+                    # Transcript Variables
+                    project_directory = f"{repo_root}/{audio}"
+                    project_json = f"{project_directory}/video.info.json"
+                    project_transcript = f"{project_directory}/transcript.txt"
+                    project_subtitles = f"{project_directory}/subtitles.txt"
+
+                    logger.info(f"{datetime.now()}: Starting transcript edit")
+
+                    # Pre-Processing
+                    sub_text = read_file(project_subtitles)
+                    transcript_instructions = read_file(transcript_prompt)
+                    transcript_details = extract_metadata(project_json)
+                    transcript_instructions = (
+                        f"{transcript_instructions}{transcript_details}"
+                    )
+                    transcript_pages = paginate_transcript(sub_text, chunk_size=4000)
+                    for page in transcript_pages:
+                        page = f"{transcript_details}{page}"
+
+                    # Send to llm for processing
+                    edited_text = send_transcript(
+                        transcript_pages,
+                        transcript_instructions,
+                        ollama_model,
+                        num_ctx=5000,
                         logger=logger,
                     )
-                logger.info(f"{datetime.now()}: Batch Transcription finished")
 
-            # Step 2-4: Delete media files
-            logger.info(f"{datetime.now()}: Deleting Media Files")
-            delete_media_files(download_directory)
+                    if edited_text:
+                        write_file(project_transcript, edited_text)
+                    else:
+                        logger.warning(
+                            f"{datetime.now()}: No response to write to file!"
+                        )
+                    logger.info(f"{datetime.now()}: Finished transcript edit")
+
+                else:
+                    # Step 3: Format Transcript
+                    # Variables
+                    logger.info(f"{datetime.now()}: Subtitle Download Finished")
+                    project_directory = f"{subtitle}"
+                    project_transcript = f"{project_directory}/transcript.txt"
+                    project_subtitles = find_file(project_directory, "video", ".vtt")
+
+                    logger.debug(
+                        f"project_directory: {project_directory}\nproject_transcript: {project_transcript}\nproject_subtitles: {project_subtitles}"
+                    )
+
+                    # Format Transcript
+                    logger.info(f"{datetime.now()}: Starting transcript edit")
+                    format_vtt_file(project_subtitles, project_transcript)
+                    logger.info(f"{datetime.now()}: Finished transcript edit")
 
         logger.info(f"{datetime.now()}: Main Function Finished")
 
@@ -125,10 +200,9 @@ def main(
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="logs/main.log", level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
     # Configuration
+    # logging.basicConfig(filename="logs/main.log", level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     repo_root = os.getcwd()
     # Batch size (number of URLs to process at a time)
     url_batch_size = 10
@@ -137,6 +211,7 @@ if __name__ == "__main__":
     noplaylist = "True"
 
     main(
+        ollama_model="gemma3:4b",
         repo_root=repo_root,
         url_file=url_file,
         url_batch_size=url_batch_size,
