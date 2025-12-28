@@ -64,12 +64,6 @@ def download_audio(url, output_dir, noplaylist="False"):
             f"{datetime.now()}: Audio file video.wav has been Downloaded to: {download}"
         )
         return download
-    # This is a workaround
-    elif validate_file(download, "video", ".webm"):
-        logger.info(
-            f"{datetime.now()}: Video File video.m4a has been Downloaded to: {download}"
-        )
-        return download
     else:
         logger.info(f"{datetime.now()}: Audio file video.wav has NOT been Downloaded!")
         return None
@@ -183,12 +177,6 @@ def download_video(url, output_dir, noplaylist="False"):
             f"{datetime.now()}: Video File video.m4a has been Downloaded to: {download}"
         )
         return download
-    # This is a workaround
-    elif validate_file(download, "video", ".webm"):
-        logger.info(
-            f"{datetime.now()}: Video File video.m4a has been Downloaded to: {download}"
-        )
-        return download
     else:
         logger.info(f"{datetime.now()}: Video File video.m4a has Not been Downloaded!")
         return None
@@ -232,12 +220,15 @@ def validate_file(path, start_filter, end_filter):
     """
     try:
         files = os.listdir(path)
+        found = False
+        logger.info(f"{datetime.now()}: validate_files - 'files' var: {files}")
         for filename in files:
-            logger.info(f"{datetime.now()}: {filename}")
             if filename.startswith(start_filter) and filename.endswith(end_filter):
-                return True
-            else:
-                return False
+                found = True
+                break
+
+        return found
+
     except FileNotFoundError:
         return None
 
