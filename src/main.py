@@ -117,7 +117,12 @@ def main(
                         # Pre-Processing
                         sub_text = read_file(project_subtitles)
                         transcript_instructions = read_file(transcript_prompt)
-                        transcript_details = extract_metadata(project_json)
+                        transcript_details = "\n\n**TRANSCRIPT DETAILS**\n\n"
+                        transcript_details += (
+                            "*Please do not include this section in the transcript*!\n"
+                        )
+                        transcript_details += extract_metadata(project_json)
+                        transcript_details += "\n\n**TRANSCRIPT**\n"
                         transcript_instructions = (
                             f"{transcript_instructions}{transcript_details}"
                         )
@@ -150,12 +155,16 @@ def main(
                     # Variables
                     logger.info(f"{datetime.now()}: Subtitle Download Finished")
                     project_directory = f"{subtitle}"
+                    project_json = f"{project_directory}/video.info.json"
                     project_transcript = f"{project_directory}/transcript.txt"
                     project_subtitles = f"{project_directory}/subtitles.txt"
 
                     logger.debug(
                         f"project_directory: {project_directory}\nproject_transcript: {project_transcript}\nproject_subtitles: {project_subtitles}"
                     )
+
+                    # Creating details file
+                    extract_metadata(project_json)
 
                     # Format Transcript
                     logger.info(f"{datetime.now()}: Starting transcript edit")
