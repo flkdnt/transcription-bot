@@ -42,6 +42,7 @@ def download_audio(url, output_dir, noplaylist="False"):
         "format": "bestaudio",  # Download the best quality
         # "keepvideo": "True",
         "noplaylist": noplaylist,
+        "overwrites": False,
         "writeinfojson": "True",
         "postprocessors": [
             # {  # Convert to m4a(mp4)
@@ -104,6 +105,7 @@ def download_subtitles(url, output_dir, noplaylist="False"):
         "extractor_args": {"youtube": {"player_client": ["default"]}},
         "restrictfilenames": "True",
         "noplaylist": noplaylist,
+        "overwrites": False,
         "writeinfojson": "True",
         "writesubtitles": "True",
         # "writeautomaticsub": "True",
@@ -162,6 +164,7 @@ def download_video(url, output_dir, noplaylist="False"):
         "restrictfilenames": "True",
         "format": "bestvideo+bestaudio/best",  # Download the best quality
         "noplaylist": noplaylist,
+        "overwrites": False,
         "writeinfojson": "True",
         "print": "after_move:filename",
         "postprocessors": [
