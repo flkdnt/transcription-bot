@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 def transcribe_file(
     project,
     audio="video.wav",
-    transcript="transcript.txt",
+    transcript="subtitles.txt",
     batch_size=4,
     beam_size=5,
     compute_type="int8",
@@ -97,10 +97,4 @@ if __name__ == "__main__":
     project_path = f"{repo_root}/{audio_dir}/{audio_project}"
 
     # Transcribe
-    transcribe_file(
-        project_path,
-        batch_size=4,
-        model_size="large-v1",
-        vad_filter=True,
-        logger=logger,
-    )
+    transcribe_file(project_path, batch_size=4, model_size="large-v1", vad_filter=True)
