@@ -6,7 +6,14 @@ from download import download_audio, download_subtitles
 from edit import extract_metadata, format_vtt_file
 from transcribe import transcribe_file
 from utility_llm import paginate_prompt, send_prompt
-from utility_os import delete_media_files, read_file, write_file
+from utility_os import (
+    delete_media_files,
+    find_files,
+    format_path,
+    read_file,
+    validate_file,
+    write_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +27,8 @@ def main(
     noplaylist="True",
     ollama_model="llama3.1:8b",
     ollama_host="http://localhost:11434",
+    chunk_size=2000,
+    num_ctx=3000,
 ):
     """
     Orchestrates the transcription process from a list of URLs.
@@ -126,7 +135,9 @@ def main(
                         transcript_instructions = (
                             f"{transcript_instructions}{transcript_details}"
                         )
-                        transcript_pages = paginate_prompt(sub_text, chunk_size=4000)
+                        transcript_pages = paginate_prompt(
+                            sub_text, chunk_size=chunk_size
+                        )
                         for page in transcript_pages:
                             page = f"{transcript_details}{page}"
 
@@ -136,8 +147,7 @@ def main(
                             transcript_instructions,
                             ollama_model,
                             host=ollama_host,
-                            num_ctx=5000,
-                            logger=logger,
+                            num_ctx=num_ctx,
                         )
 
                         if edited_text:
@@ -157,22 +167,54 @@ def main(
                     project_transcript = f"{project_directory}/transcript.txt"
                     project_subtitles = f"{project_directory}/subtitles.txt"
 
-                    logger.debug(
-                        f"project_directory: {project_directory}\nproject_transcript: {project_transcript}\nproject_subtitles: {project_subtitles}"
-                    )
-
                     # Creating details file
                     extract_metadata(project_json)
 
-                    # Format Transcript
-                    logger.info(f"{datetime.now()}: Starting transcript edit")
-                    format_vtt_file(project_subtitles, project_transcript)
-                    logger.info(f"{datetime.now()}: Finished transcript edit")
+                    if os.path.exists(project_transcript):
+                        logger.info(
+                            f"{datetime.now()}: Transcript {project_transcript} already exists, skipping transcript edit"
+                        )
+                    else:
+                        # Format Transcript
+                        logger.info(f"{datetime.now()}: Starting transcript edit")
+                        format_vtt_file(project_subtitles, project_transcript)
+                        logger.info(f"{datetime.now()}: Finished transcript edit")
 
             # Step 4: Cleanup Files
             # Delete media files now that we have a transcript to process
             logger.info(f"{datetime.now()}: Deleting Media Files")
             delete_media_files(download_directory)
+
+        # Step 5: Summarize Transcript
+        pre_summary = find_files(download_directory, "transcript.txt")
+        logger.info(f"{datetime.now()}: Starting Summary Process")
+
+        for item in pre_summary:
+            summary_directory = format_path(item)
+            summary_file = f"{summary_directory}/summary.txt"
+            summary_input = f"{summary_directory}/transcript.txt"
+            summary_prompt = f"{repo_root}/prompts/summary.prompt.md"
+            if os.path.exists(summary_file):
+                logger.info(
+                    f"{datetime.now()}: Summary {summary_file} already exists, skipping summary process"
+                )
+            else:
+                transcript = read_file(summary_input)
+                pages = paginate_prompt(transcript, chunk_size=chunk_size)
+
+                # Send to llm for processing
+                summarized_text = send_prompt(
+                    pages,
+                    instructions=summary_prompt,
+                    model=ollama_model,
+                    host=ollama_host,
+                    num_ctx=num_ctx,
+                )
+
+                if summarized_text:
+                    write_file(summary_file, summarized_text)
+                else:
+                    logger.warning(f"{datetime.now()}: No response to write to file!")
 
         logger.info(f"{datetime.now()}: Main Function Finished")
 
@@ -198,4 +240,6 @@ if __name__ == "__main__":
         url_file=url_file,
         url_batch_size=url_batch_size,
         noplaylist=noplaylist,
+        chunk_size=4000,
+        num_ctx=5000,
     )
