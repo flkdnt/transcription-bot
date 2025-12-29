@@ -29,6 +29,31 @@ def delete_media_files(directory):
                     logger.debug(f"{datetime.now()}: Deleted {filepath}")
     except Exception as e:
         logger.error(f"{datetime.now()}: Error deleting files: {e}")
+        raise
+
+
+def find_files(root_dir, filename):
+    """
+    Recursively searches for a file within a given directory and its subdirectories.
+
+    Args:
+        root_dir (str): The root directory to start the search from.
+        filename (str): The name of the file to search for.
+
+    Returns:
+        str: The full path to the file if found.
+             Returns None if the file is not found.
+    """
+    file_list = []
+    try:
+        for dirpath, dirnames, files in os.walk(root_dir):
+            if filename in files:
+                file_list.append(os.path.join(dirpath, filename))
+
+        return file_list
+    except Exception as e:
+        logger.error(f"{datetime.now()}: Error during file search: {e}")
+        raise
 
 
 def format_path(filename):
