@@ -7,12 +7,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 logger = logging.getLogger(__name__)
 
 
-def paginate_transcript(transcription_text, chunk_size=1000, chunk_overlap=0):
+def paginate_prompt(input, chunk_size=1000, chunk_overlap=0):
     """
-    Generates a list of pages from the transcription text, suitable for inclusion within an LLM prompt.
+    Generates a list of pages from the input text, suitable for inclusion within an LLM prompt.
 
     Args:
-        transcription_text (str): The complete transcription text to be paginated.
+        input (str): The complete input text to be paginated.
         instructions (str): Instructions to be included at the beginning of each page.
         page_size (int, optional): The maximum number of lines per page. Defaults to 500.
 
@@ -24,7 +24,7 @@ def paginate_transcript(transcription_text, chunk_size=1000, chunk_overlap=0):
         None
 
     Notes:
-        This function is designed to generate chunks of the transcription text that can be
+        This function is designed to generate chunks of the input text that can be
         passed to a large language model (LLM) for editing or summarization.
         It handles potential errors gracefully by logging the error and returning None.
     """
@@ -34,7 +34,7 @@ def paginate_transcript(transcription_text, chunk_size=1000, chunk_overlap=0):
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size, chunk_overlap=chunk_overlap
         )
-        texts = text_splitter.split_text(transcription_text)
+        texts = text_splitter.split_text(input)
 
         logger.info(f"{datetime.now()}: Pagination Completed Successfully")
         return texts
@@ -43,28 +43,27 @@ def paginate_transcript(transcription_text, chunk_size=1000, chunk_overlap=0):
         raise e
 
 
-def send_transcript(
-    transcript,
+def send_prompt(
+    input,
     instructions,
     model="llama3.1:8b",
     host="http://localhost:11434",
     num_ctx=4000,
-    logger=None,
 ):
     """
-    Edits the transcription text using an LLM.
+    Edits the input text using an LLM.
 
-    This function sends the transcription text to an LLM (e.g., Ollama) for editing.
+    This function sends the input text to an LLM (e.g., Ollama) for editing.
     It supports specifying the LLM model and host URL.
 
     Args:
-        transcript (str): The text of the transcription to edit.
+        input (str): The text to edit.
         model (str, optional): The name of the LLM model to use. Defaults to "llama3.1:8b".
         host (str, optional): The URL of the host where the LLM is running. Defaults to "http://localhost:11434".
         num_ctx (int, optional): The number of tokens to use for the context window. Defaults to 4000.
 
     Returns:
-        list: A list of strings, where each string is a line of the edited transcription text,
+        list: A list of strings, where each string is a line of the edited input text,
               or None if an error occurred.
 
     Raises:
@@ -79,8 +78,8 @@ def send_transcript(
         # Initialiaze Ollama
         llm = ChatOllama(model=model, temperature=0, base_url=host, num_ctx=num_ctx)
 
-        logger.info(f"{datetime.now()}: Sending Transcript to Ollama for editing")
-        for i in transcript:
+        logger.info(f"{datetime.now()}: Sending input to Ollama for editing")
+        for i in input:
             # Make the API call to Ollama
             messages = [
                 ("system", instructions),
@@ -90,13 +89,13 @@ def send_transcript(
 
             formatted_text.append(ai_msg.content)
 
-        logger.info(f"{datetime.now()}: Finished sending transcript to Ollama")
+        logger.info(f"{datetime.now()}: Finished sending input to Ollama")
 
         return formatted_text
 
     except Exception as e:
         logger.error(f"{datetime.now()}: Error making API call: {e}")
-        return None
+        raise
 
 
 if __name__ == "__main__":

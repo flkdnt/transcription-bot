@@ -5,7 +5,7 @@ from datetime import datetime
 from download import download_audio, download_subtitles
 from edit import extract_metadata, format_vtt_file
 from transcribe import transcribe_file
-from utility_llm import paginate_transcript, send_transcript
+from utility_llm import paginate_prompt, send_prompt
 from utility_os import delete_media_files, read_file, write_file
 
 logger = logging.getLogger(__name__)
@@ -126,14 +126,12 @@ def main(
                         transcript_instructions = (
                             f"{transcript_instructions}{transcript_details}"
                         )
-                        transcript_pages = paginate_transcript(
-                            sub_text, chunk_size=4000
-                        )
+                        transcript_pages = paginate_prompt(sub_text, chunk_size=4000)
                         for page in transcript_pages:
                             page = f"{transcript_details}{page}"
 
                         # Send to llm for processing
-                        edited_text = send_transcript(
+                        edited_text = send_prompt(
                             transcript_pages,
                             transcript_instructions,
                             ollama_model,

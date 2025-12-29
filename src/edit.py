@@ -4,7 +4,7 @@ import os
 import re
 from datetime import datetime
 
-from utility_llm import paginate_transcript, send_transcript
+from utility_llm import paginate_prompt, send_prompt
 from utility_os import format_path, read_file, write_file
 
 logger = logging.getLogger(__name__)
@@ -143,10 +143,10 @@ if __name__ == "__main__":
     details += extract_metadata(json_file)
     details += "\n\n**TRANSCRIPT**\n"
     instructions = f"{instructions}{details}"
-    pages = paginate_transcript(original_text, chunk_size=4000, logger=logger)
+    pages = paginate_prompt(original_text, chunk_size=4000, logger=logger)
     for page in pages:
         page = f"{details}{page}"
-    edited_text = send_transcript(
+    edited_text = send_prompt(
         pages, instructions, ollama_model, num_ctx=5000, logger=logger
     )
 
