@@ -5,34 +5,62 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
-def delete_media_files(directory):
-    """
-    Deletes all files from a specified directory that start with the prefix "video".
-    These files are likely downloaded media files, possibly from a service like YouTube (yt-dlp).
-    Example Files: video.info.json, video.webm, video.wav, video.en.vtt, etc.
+def delete_files(
+    directory,
+    name=None,
+    postfix=None,
+    prefix=None,
+) -> None:
+    """Deletes files matching specific criteria from a directory.
+
+    This function recursively traverses a directory, deleting files that match
+    either a given name, a prefix and postfix combination, or just a prefix.
+    It is designed to handle the removal of media files, such as those downloaded
+    from services like YouTube (yt-dlp).
 
     Args:
-        directory (str): The path to the directory from which to delete files.
+        directory (str): The path to the directory to search and delete from.
+        name (str, optional): The exact filename to delete. Defaults to None.
+        postfix (str, optional): The file extension to match. Defaults to None.
+        prefix (str, optional): The filename prefix to match. Defaults to None.
 
     Returns:
-        None.  The function performs the deletion directly.
+        None.  The function deletes files directly.
 
     Raises:
-        Exception: If any error occurs during the file deletion process.
+        Exception: If any error occurs during the deletion process.
     """
     try:
         for root, directories, files in os.walk(directory):
             for filename in files:
                 filepath = os.path.join(root, filename)
-                if os.path.isfile(filepath) and filename.startswith("video"):
-                    os.remove(filepath)
-                    logger.debug(f"{datetime.now()}: Deleted {filepath}")
+                if name:
+                    if os.path.isfile(filepath) and (filename == name):
+                        os.remove(filepath)
+                        logger.debug(f"{datetime.now()}: Deleted {filepath}")
+                elif prefix and postfix:
+                    if (
+                        os.path.isfile(filepath)
+                        and filename.startswith(prefix)
+                        and filename.endswith(postfix)
+                    ):
+                        os.remove(filepath)
+                        logger.debug(f"{datetime.now()}: Deleted {filepath}")
+                elif prefix:
+                    if os.path.isfile(filepath) and filename.startswith(prefix):
+                        os.remove(filepath)
+                        logger.debug(f"{datetime.now()}: Deleted {filepath}")
+                elif postfix:
+                    if os.path.isfile(filepath) and filename.endswith(postfix):
+                        os.remove(filepath)
+                        logger.debug(f"{datetime.now()}: Deleted {filepath}")
+
     except Exception as e:
         logger.error(f"{datetime.now()}: Error deleting files: {e}")
         raise
 
 
-def find_files(root_dir, filename):
+def find_files(root_dir, filename) -> list:
     """
     Recursively searches for a file within a given directory and its subdirectories.
 
@@ -56,7 +84,7 @@ def find_files(root_dir, filename):
         raise
 
 
-def format_path(filename):
+def format_path(filename) -> str:
     """
     Trims the filename from the end of a path and returns the path itself.
 
@@ -88,7 +116,7 @@ def format_path(filename):
         raise
 
 
-def read_file(file_path):
+def read_file(file_path) -> str:
     """
     Reads the entire contents of a file and returns it as a string.
 
@@ -118,7 +146,7 @@ def read_file(file_path):
         raise
 
 
-def validate_file(path, start_filter, end_filter, return_path=False):
+def validate_file(path, start_filter, end_filter, return_path=False) -> str | bool:
     """
     Searches for a file within a given path that starts with 'start_filter' and ends with 'end_filter'
 
@@ -149,7 +177,7 @@ def validate_file(path, start_filter, end_filter, return_path=False):
         raise  # Raise the FileNotFoundError
 
 
-def write_file(file_path, content, mode="w"):
+def write_file(file_path, content, mode="w") -> None:
     """
     Writes content to a file.
 
