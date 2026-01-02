@@ -346,7 +346,7 @@ def stage_2(
         )
     else:
         # Create Summary with outline options
-        stage_2_2(
+        stage_2_1(
             chunk_size=chunk_size,
             llm_host=llm_host,
             llm_model=llm_model,
@@ -360,40 +360,6 @@ def stage_2(
 
 
 def stage_2_1(
-    chunk_size: int,
-    llm_host: str,
-    llm_model: str,
-    num_ctx: int,
-    highlight_file: str,
-    highlight_prompt: str,
-    transcript_file: str,
-) -> None:
-    logger.info(f"{datetime.now()}: Starting Highlight for {transcript_file}")
-    # paginate transcript
-    transcript = read_file(transcript_file)
-    pages = paginate_prompt(transcript, chunk_size=chunk_size)
-
-    # Send to llm for processing
-    highlight = send_prompt(
-        pages,
-        instructions=highlight_prompt,
-        model=llm_model,
-        host=llm_host,
-        num_ctx=num_ctx,
-    )
-
-    if highlight:
-        for item in highlight:
-            write_file(
-                highlight_file,
-                item,
-                mode="a",
-            )
-    else:
-        logger.warning(f"{datetime.now()}: No response to write to file!")
-
-
-def stage_2_2(
     chunk_size: int,
     llm_host: str,
     llm_model: str,
