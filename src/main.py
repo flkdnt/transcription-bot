@@ -69,20 +69,16 @@ def main(
 
     for transcript in transcripts:
         transcript_directory = format_path(transcript)
-        highlight_file = f"{transcript_directory}/highlights.txt"
         summary_file = f"{transcript_directory}/summary.txt"
         transcript_file = f"{transcript_directory}/transcript.txt"
-        highlight_prompt = f"{repo_root}/prompts/highlight.prompt.md"
         outline_prompt = f"{repo_root}/prompts/outline.prompt.md"
         summary_prompt = f"{repo_root}/prompts/summary.prompt.md"
 
         stage_2(
             llm_host=llm_host,
             llm_model=llm_model,
-            highlight_file=highlight_file,
             summary_file=summary_file,
             transcript_file=transcript_file,
-            highlight_prompt=highlight_prompt,
             outline_prompt=outline_prompt,
             summary_prompt=summary_prompt,
             chunk_size=10000,
