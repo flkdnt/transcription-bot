@@ -7,7 +7,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 logger = logging.getLogger(__name__)
 
 
-def paginate_prompt(input, chunk_size=1000, chunk_overlap=0):
+def paginate_prompt(input, chunk_size=1000, chunk_overlap=0) -> list:
     """
     Generates a list of pages from the input text, suitable for inclusion within an LLM prompt.
 
@@ -49,7 +49,7 @@ def send_prompt(
     model="llama3.1:8b",
     host="http://localhost:11434",
     num_ctx=4000,
-):
+) -> list:
     """
     Edits the input text using an LLM.
 

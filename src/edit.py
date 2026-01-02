@@ -10,7 +10,7 @@ from utility_os import format_path, read_file, write_file
 logger = logging.getLogger(__name__)
 
 
-def extract_metadata(file_path):
+def extract_metadata(file_path) -> str | None:
     """
     Extracts specific fields from the video.info.json file using the json library.
 
@@ -56,7 +56,7 @@ def extract_metadata(file_path):
         raise
 
 
-def format_vtt_file(vtt_file_path, output_file_path):
+def format_vtt_file(vtt_file_path, output_file_path) -> None:
     """
     Converts a .vtt file to a text file containing only the captions (timecodes and text).
 

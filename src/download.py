@@ -9,7 +9,7 @@ from utility_os import format_path, validate_file
 logger = logging.getLogger(__name__)
 
 
-def download_audio(url, output_dir, noplaylist="False"):
+def download_audio(url, output_dir, noplaylist="False") -> str | None:
     """
     Downloads audio from a YouTube URL using yt-dlp.
 
@@ -74,7 +74,7 @@ def download_audio(url, output_dir, noplaylist="False"):
         return None
 
 
-def download_subtitles(url, output_dir, noplaylist="False"):
+def download_subtitles(url, output_dir, noplaylist="False") -> str | None:
     """
     Downloads subtitles from a YouTube URL using yt-dlp.
 
@@ -129,7 +129,11 @@ def download_subtitles(url, output_dir, noplaylist="False"):
         )
         # Rename to a consistent filename
         new_name = f"{home_folder}/subtitles.txt"
-        os.rename(filepath, new_name)
+        if type(filepath) is str:
+            os.rename(filepath, new_name)
+        else:
+            logger.error("var 'filepath' is not a string!")
+            raise
         logger.debug(
             f"{datetime.now()}: Subtitle File video*.vtt has been Renamed to: {new_name}"
         )
@@ -139,9 +143,10 @@ def download_subtitles(url, output_dir, noplaylist="False"):
         logger.info(
             f"{datetime.now()}: Subtitle File video*.vtt has Not been Downloaded!"
         )
+        return None
 
 
-def download_video(url, output_dir, noplaylist="False"):
+def download_video(url, output_dir, noplaylist="False") -> str | None:
     """
     Downloads a video from a YouTube URL using yt-dlp.
 
@@ -201,7 +206,7 @@ def download_video(url, output_dir, noplaylist="False"):
         return None
 
 
-def ytdlp_download(options, url):
+def ytdlp_download(options, url) -> str | None:
     """
     Downloads a file from a YouTube URL using yt-dlp.
 

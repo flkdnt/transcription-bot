@@ -17,7 +17,7 @@ def transcribe_file(
     device="cpu",
     model_size="medium",
     vad_filter=False,
-):
+) -> None:
     """Transcribes an audio file using faster_whisper.
 
     This function takes an audio file, creates a transcript,
@@ -81,7 +81,6 @@ def transcribe_file(
     except Exception as e:
         logger.error(f"{datetime.now()}: Error Transcribing Audio: {e}")
         raise RuntimeError("Error transcribing.")
-        return None
 
     return segments
 
