@@ -113,7 +113,7 @@ def stage_1(
             # Delete media files now that we have a transcript to process
             logger.info(f"{datetime.now()}:Stage 1-7: Deleting Files")
             delete_files(directory=directory, prefix="video")
-            # delete_files(directory=directory, name="subtitles.txt")
+            delete_files(directory=directory, name="subtitles.txt")
             logger.info(f"{datetime.now()}:Stage 1-7: Finished Deleting Files")
 
         logger.info(f"{datetime.now()}:Stage 1: Finished Stage 1")
