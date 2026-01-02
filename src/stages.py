@@ -342,30 +342,29 @@ def stage_2(
     chunk_size=2000,
     num_ctx=3000,
 ) -> None:
-    # create summary file
-    write_file(summary_file, "")
-
-    # if os.path.exists(highlight_file):
-    #    logger.info(
-    #        f"{datetime.now()}: Highlight {highlight_file} already exists, skipping Highlights"
-    #    )
-    # else:
-    #    # Create Highlights
-    #    stage_2_1(
-    #        chunk_size=chunk_size,
-    #        llm_host=llm_host,
-    #        llm_model=llm_model,
-    #        num_ctx=num_ctx,
-    #        highlight_file=highlight_file,
-    #        highlight_prompt=highlight_prompt,
-    #        transcript_file=transcript_file,
-    #    )
+    if os.path.exists(highlight_file):
+        logger.info(
+            f"{datetime.now()}: Highlight {highlight_file} already exists, skipping Highlights"
+        )
+    else:
+        # Create Highlights
+        stage_2_1(
+            chunk_size=chunk_size,
+            llm_host=llm_host,
+            llm_model=llm_model,
+            num_ctx=num_ctx,
+            highlight_file=highlight_file,
+            highlight_prompt=highlight_prompt,
+            transcript_file=transcript_file,
+        )
 
     if os.path.exists(summary_file):
         logger.info(
             f"{datetime.now()}: Summary {summary_file} already exists, skipping Summary"
         )
     else:
+        ## Create Summary file
+        # write_file(summary_file, "")
         # Create Summary with outline options
         stage_2_2(
             chunk_size=chunk_size,
