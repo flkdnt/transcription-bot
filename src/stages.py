@@ -8,8 +8,6 @@ from transcribe import transcribe_file
 from utility_llm import paginate_prompt, send_prompt
 from utility_os import (
     delete_files,
-    find_files,
-    format_path,
     read_file,
     write_file,
 )
