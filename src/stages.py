@@ -345,8 +345,6 @@ def stage_2(
             f"{datetime.now()}: Summary {summary_file} already exists, skipping Summary"
         )
     else:
-        ## Create Summary file
-        # write_file(summary_file, "")
         # Create Summary with outline options
         stage_2_2(
             chunk_size=chunk_size,
