@@ -153,6 +153,8 @@ def split_into_chunks(text: str, delimiter: str, replacement=None) -> list:
     if replacement:
         for item in split_text:
             blocks.append(item + replacement)
+    else:
+        blocks = split_text
 
     return blocks
 
