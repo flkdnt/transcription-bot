@@ -94,7 +94,7 @@ def format_vtt_file(vtt_file_path, output_file_path) -> None:
         caption_regex = re.compile(r"([0-9:. ]*-->[0-9:. ]*)|([(][) a-z0-9].*)")
         content = caption_regex.sub("", content)
         while re.findall("\n\n", content):
-            logger.info(f"{datetime.now()}: Removing double-newlines")
+            logger.debug(f"{datetime.now()}: Removing double-newlines")
             content = re.sub("\n\n", "\n", content)
 
         # Remove Leading Space in transcript

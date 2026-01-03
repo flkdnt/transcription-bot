@@ -71,7 +71,7 @@ def transcribe_file(
             cleaned_segment = segment.text.strip(" \t\n\r")
             segment_list.append(cleaned_segment)
             logger.debug(cleaned_segment)
-        logger.info(f"{datetime.now()}: Stopping Transcription of {project}/{audio}")
+        logger.debug(f"{datetime.now()}: Stopping Transcription of {project}/{audio}")
 
         with open(f"{project}/{transcript}", "w") as f:
             for item in segment_list:

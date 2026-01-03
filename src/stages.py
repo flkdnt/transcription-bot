@@ -63,7 +63,7 @@ def stage_1(
             batch_urls = urls[i : i + url_batch_size]
             batch_number = i // url_batch_size
 
-            logger.info(f"{datetime.now()}:Stage 1-1: Starting Batch {batch_number}")
+            logger.debug(f"{datetime.now()}:Stage 1-1: Starting Batch {batch_number}")
             # For each URL...
             for url in batch_urls:
                 url = url.strip()

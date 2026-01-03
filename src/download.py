@@ -140,7 +140,7 @@ def download_subtitles(url, output_dir, noplaylist="False") -> str | None:
         # return directory
         return home_folder
     else:
-        logger.info(
+        logger.warning(
             f"{datetime.now()}: Subtitle File video*.vtt has Not been Downloaded!"
         )
         return None
@@ -202,7 +202,9 @@ def download_video(url, output_dir, noplaylist="False") -> str | None:
         )
         return download
     else:
-        logger.info(f"{datetime.now()}: Video File video.m4a has Not been Downloaded!")
+        logger.warning(
+            f"{datetime.now()}: Video File video.m4a has Not been Downloaded!"
+        )
         return None
 
 

@@ -29,14 +29,14 @@ def paginate_prompt(input, chunk_size=1000, chunk_overlap=0) -> list:
         It handles potential errors gracefully by logging the error and returning None.
     """
     try:
-        logger.info(f"{datetime.now()}: Starting Pagination")
+        logger.debug(f"{datetime.now()}: Starting Pagination")
 
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size, chunk_overlap=chunk_overlap
         )
         texts = text_splitter.split_text(input)
 
-        logger.info(f"{datetime.now()}: Pagination Completed Successfully")
+        logger.debug(f"{datetime.now()}: Pagination Completed Successfully")
         return texts
 
     except Exception as e:
@@ -73,12 +73,12 @@ def send_prompt(
     try:
         formatted_text = []
 
-        logger.info(f"{datetime.now()}: Initializing Ollama")
+        logger.debug(f"{datetime.now()}: Initializing LLM")
 
         # Initialiaze Ollama
         llm = ChatOllama(model=model, temperature=0, base_url=host, num_ctx=num_ctx)
 
-        logger.info(f"{datetime.now()}: Sending input to Ollama for editing")
+        logger.info(f"{datetime.now()}: Sending input to LLM for editing")
         for i in input:
             # Make the API call to Ollama
             messages = [
