@@ -91,7 +91,7 @@ def main(
 if __name__ == "__main__":
     # Configuration
     # logging.basicConfig(filename="logs/main.log", level=logging.INFO)
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     repo_root = os.getcwd()
     # Batch size (number of URLs to process at a time)
     url_batch_size = 10
