@@ -134,6 +134,29 @@ def format_vtt_file(vtt_file_path, output_file_path) -> None:
         raise
 
 
+def split_into_chunks(text: str, delimiter: str, replacement=None) -> list:
+    """
+    Splits a text string into blocks based on a delimiter,
+    handling multiple occurrences of the delimiter.
+
+    Args:
+        text: The input text string.
+        delimiter: The delimiter string to split the text by.
+
+    Returns:
+        A list of strings, where each string is a block.
+    """
+
+    blocks = []
+    split_text = text.split(delimiter)
+
+    if replacement:
+        for item in split_text:
+            blocks.append(item + replacement)
+
+    return blocks
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
