@@ -56,6 +56,22 @@ def extract_metadata(file_path) -> str | None:
         raise
 
 
+def format_summary_file(filepath) -> None:
+    try:
+        logger.debug(f"{datetime.now()}:Starting Summary File Edit")
+        # Step 1 - Split text into chunks by tag
+        summary = read_file(filepath)
+        summary = summary.split("**End Outline**")
+        logger.info(summary)
+
+    except FileNotFoundError:
+        logger.error(f"{datetime.now()}: Error: File not found at {filepath}")
+        raise
+    except Exception as e:
+        logger.error(f"{datetime.now()}: An error occurred: {e}")
+        raise
+
+
 def format_vtt_file(vtt_file_path, output_file_path) -> None:
     """
     Converts a .vtt file to a text file containing only the captions (timecodes and text).

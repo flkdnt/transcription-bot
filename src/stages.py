@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 from download import download_audio, download_subtitles
-from edit import extract_metadata, format_vtt_file
+from edit import extract_metadata, format_summary_file, format_vtt_file
 from transcribe import transcribe_file
 from utility_llm import paginate_prompt, send_prompt
 from utility_os import (
@@ -356,21 +356,23 @@ def stage_2(
     else:
         if os.path.exists(summary_file):
             logger.info(
-                f"{datetime.now()}: Summary {summary_file} already exists, skipping Summary"
+                f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
             )
         else:
             # Create Summary with outline options
-            stage_2_1(
-                chunk_size=chunk_size,
-                llm_host=llm_host,
-                llm_model=llm_model,
-                num_ctx=num_ctx,
-                summary_file=summary_file,
-                outline_prompt=outline_prompt,
-                transcript_file=transcript_file,
-            )
+            # stage_2_1(
+            #    chunk_size=chunk_size,
+            #    llm_host=llm_host,
+            #    llm_model=llm_model,
+            #    num_ctx=num_ctx,
+            #    summary_file=summary_file,
+            #    outline_prompt=outline_prompt,
+            #    transcript_file=transcript_file,
+            # )
 
-    logger.info(f"{datetime.now()}: Finished Summary for {transcript_file}")
+            stage_2_2(filepath=summary_file)
+
+    logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {transcript_file}")
 
 
 def stage_2_1(
@@ -382,7 +384,7 @@ def stage_2_1(
     outline_prompt: str,
     transcript_file: str,
 ) -> None:
-    logger.info(f"{datetime.now()}: Starting Outline for {transcript_file}")
+    logger.info(f"{datetime.now()}:Stage 2-1: Starting Outline for {transcript_file}")
     # paginate transcript
     transcript = read_file(transcript_file)
     pages = paginate_prompt(transcript, chunk_size=chunk_size)
@@ -404,4 +406,10 @@ def stage_2_1(
                 mode="a",
             )
     else:
-        logger.warning(f"{datetime.now()}: No response to write to file!")
+        logger.warning(f"{datetime.now()}:Stage 2-1: No response to write to file!")
+
+
+def stage_2_2(filepath: str) -> None:
+    logger.info(f"{datetime.now()}:Stage 2-2: Formatting Summary File")
+    format_summary_file(filepath)
+    logger.info(f"{datetime.now()}:Stage 2-2: Finished Formatting Summary File")
