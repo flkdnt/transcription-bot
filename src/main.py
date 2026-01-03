@@ -76,13 +76,14 @@ def main(
 
         stage_2(
             llm_host=llm_host,
-            llm_model=llm_model,
+            llm_model="llama3.2:3b",
             summary_file=summary_file,
             transcript_file=transcript_file,
             outline_prompt=outline_prompt,
             summary_prompt=summary_prompt,
+            overwrite=True,
             chunk_size=10000,
-            num_ctx=15000,
+            num_ctx=12000,
         )
 
     logger.info(f"{datetime.now()}: Main Function Finished")
