@@ -69,7 +69,7 @@ def main(
 
     for transcript in transcripts:
         transcript_directory = format_path(transcript)
-        summary_file = f"{transcript_directory}/summary.txt"
+        summary_file = f"{transcript_directory}/summary.md"
         transcript_file = f"{transcript_directory}/transcript.txt"
         outline_prompt = f"{repo_root}/prompts/outline.prompt.md"
         summary_prompt = f"{repo_root}/prompts/summary.prompt.md"
