@@ -274,7 +274,7 @@ def format_summary_file(
                         last_value, item = format_header(
                             header=item,
                             header_section=section[0],
-                            llm_host=llm_model,
+                            llm_host=llm_host,
                             llm_model=llm_model,
                             last_value=last_value,
                         )
