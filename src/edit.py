@@ -4,6 +4,7 @@ import os
 import re
 from datetime import datetime
 
+from utility_llm import send_prompt
 from utility_os import format_path, read_file, write_file
 
 logger = logging.getLogger(__name__)
@@ -28,8 +29,8 @@ def convert_roman_numerals(text: str) -> tuple[int, str]:
     test = re.search(roman_pattern, text, re.IGNORECASE)
 
     if test:
-        logger.debug(f"Roman Numeral Found: {test}")
         test = test.group(0)
+        logger.debug(f"Roman Numeral Found: {test}")
         while i < len(test):
             if i + 1 < len(test) and roman_map[test[i]] < roman_map[test[i + 1]]:
                 result += roman_map[test[i + 1]] - roman_map[test[i]]
@@ -133,10 +134,14 @@ def find_integer(text: str) -> int:
         return 0
 
 
-def format_header(header: str, last_value: int) -> tuple[int, str]:
-    # Changing Header Numbers
-    # Assuming header has roman Numerals
-    # Convert Roman Numerals
+def format_header(
+    header: str,
+    last_value: int,
+    header_section: str,
+    llm_model: str,
+    last_section=False,
+) -> tuple[int, str]:
+    # Convert Roman Numerals(Assuming header has Roman Numerals)
     value, header = convert_roman_numerals(header)
     if value == 0:
         # Assuming Header Already has an Integer
@@ -145,29 +150,49 @@ def format_header(header: str, last_value: int) -> tuple[int, str]:
             logger.warning(f"No Integer found for {header}, returning same value")
             return last_value, header
 
+    # Header Integer Updating
     if value == last_value:
         logger.warning("last known value matches current value, returning same value")
-        return last_value, header
     elif value < last_value:
         last_value = last_value + 1
         header = convert_integer(header, value, last_value)
         logger.debug(f"New Header Integer: {header}")
-        return last_value, header
     elif value > last_value:
         if value - last_value == 1:
             last_value = value
             logger.debug(f"Header Integer is incrementing last_value: {header}")
-            return last_value, header
+
         else:
             logger.error("Skipped Header Numbers")
             raise
 
+    # Cleaning Up header itself
+    if value > 1:
+        if re.search(r"introduction", header, re.IGNORECASE):
+            header_list = send_prompt(
+                header_section,
+                "You are a silent editor\nReturn a Header based on the information provided\nKeep The existing header format",
+                model=llm_model,
+            )
+            logger.debug(f"Header {header} rewrite to {header_list}")
+        elif re.search(r"conclusion", header, re.IGNORECASE) and last_section is False:
+            header_list = send_prompt(
+                header_section,
+                "You are a silent editor\nReturn a Header based on the information provided\nKeep The existing header format",
+                model=llm_model,
+            )
+            logger.debug(f"Header {header} rewrite to {header_list}")
 
-def format_summary_file(filepath) -> None:
+    return last_value, header
+
+
+def format_summary_file(input_file: str, llm_model: str, output_file: str) -> None:
     # start_tag = "**Outline**"
     end_tag = "**End Outline**\n"
     header_format = "[*][*].*[*][*]"
     last_value = 0
+    last_block = False
+    summary = []
     try:
         logger.debug(f"{datetime.now()}: Starting Summary File Edit")
         # Step 1 - Split text into Blocks by tag
@@ -201,16 +226,50 @@ def format_summary_file(filepath) -> None:
                             logger.debug(
                                 f"Summary Block {index} '{item}': {section[0]}"
                             )
-                            last_value, item = format_header(item, last_value)
+                            last_value, item = format_header(
+                                header=item,
+                                header_section=section[0],
+                                llm_model=llm_model,
+                                last_value=last_value,
+                            )
+                            summary.append(f"{item}\n{section[0]}")
                     # Middle Sections
                     else:
                         logger.debug(f"Summary Block {index} '{item}': {section[0]}")
-                        last_value, item = format_header(item, last_value)
+                        last_value, item = format_header(
+                            header=item,
+                            header_section=section[0],
+                            llm_model=llm_model,
+                            last_value=last_value,
+                        )
+                        summary.append(f"{item}\n{section[0]}")
                 # Last Section
                 else:
-                    section = split_into_chunks(block, item)
-                    logger.debug(f"Summary Block {index} '{item}': {section[0]}")
-                    last_value, item = format_header(item, last_value)
+                    # Check if it's the last block
+                    if block_index == len(summary) - 1:
+                        last_block = True
+                        section = split_into_chunks(block, item)
+                        logger.debug(
+                            f"Summary Block {block_index} '{item}': {section[0]}"
+                        )
+                        last_value, item = format_header(
+                            header=item,
+                            header_section=section[0],
+                            llm_model=llm_model,
+                            last_value=last_value,
+                            last_section=last_block,
+                        )
+                        summary.append(f"{item}\n{section[0]}")
+                    else:
+                        section = split_into_chunks(block, item)
+                        logger.debug(f"Summary Block {index} '{item}': {section[0]}")
+                        last_value, item = format_header(
+                            header=item,
+                            header_section=section[0],
+                            llm_model=llm_model,
+                            last_value=last_value,
+                        )
+                        summary.append(f"{item}\n{section[0]}")
 
     except FileNotFoundError:
         logger.error(f"{datetime.now()}: Error: File not found at {input_file}")
@@ -316,5 +375,8 @@ if __name__ == "__main__":
 
     # Summary Edit
     repo_root = os.getcwd()
+    outline = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/outline.md"
     summary = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/summary.md"
-    format_summary_file(summary)
+    format_summary_file(
+        input_file=outline, llm_model="llama3.2:3b", output_file=summary
+    )
