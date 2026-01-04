@@ -44,8 +44,8 @@ def paginate_prompt(input, chunk_size=1000, chunk_overlap=0) -> list:
 
 
 def send_prompt(
-    input,
-    instructions,
+    input: list,
+    instructions: str,
     model="llama3.1:8b",
     host="http://localhost:11434",
     num_ctx=4000,
