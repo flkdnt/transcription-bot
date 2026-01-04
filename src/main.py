@@ -69,6 +69,7 @@ def main(
 
     for transcript in transcripts:
         transcript_directory = format_path(transcript)
+        outline_file = f"{transcript_directory}/outline.md"
         summary_file = f"{transcript_directory}/summary.md"
         transcript_file = f"{transcript_directory}/transcript.txt"
         outline_prompt = f"{repo_root}/prompts/outline.prompt.md"
@@ -77,6 +78,7 @@ def main(
         stage_2(
             llm_host=llm_host,
             llm_model="llama3.2:3b",
+            outline_file=outline_file,
             summary_file=summary_file,
             transcript_file=transcript_file,
             outline_prompt=outline_prompt,

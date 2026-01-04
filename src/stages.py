@@ -333,6 +333,7 @@ def stage_1_6(filepath: str) -> None:
 def stage_2(
     llm_host: str,
     llm_model: str,
+    outline_file: str,
     summary_file: str,
     transcript_file: str,
     outline_prompt: str,
@@ -351,7 +352,7 @@ def stage_2(
     #        llm_host=llm_host,
     #        llm_model=llm_model,
     #        num_ctx=num_ctx,
-    #        summary_file=summary_file,
+    #        outline_file=outline_file,
     #        outline_prompt=outline_prompt,
     #        transcript_file=transcript_file,
     #    )
@@ -368,12 +369,12 @@ def stage_2(
     #           llm_host=llm_host,
     #           llm_model=llm_model,
     #           num_ctx=num_ctx,
-    #           summary_file=summary_file,
+    #           outline_file=outline_file,
     #           outline_prompt=outline_prompt,
     #           transcript_file=transcript_file,
     #        )
 
-    stage_2_2(filepath=summary_file)
+    stage_2_2(filepath=outline_file)
 
     logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {transcript_file}")
 
@@ -383,7 +384,7 @@ def stage_2_1(
     llm_host: str,
     llm_model: str,
     num_ctx: int,
-    summary_file: str,
+    outline_file: str,
     outline_prompt: str,
     transcript_file: str,
 ) -> None:
@@ -404,7 +405,7 @@ def stage_2_1(
     if outline:
         for item in outline:
             write_file(
-                summary_file,
+                outline_file,
                 f"**Outline**\n{item}\n**End Outline**\n",
                 mode="a",
             )

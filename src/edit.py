@@ -171,7 +171,7 @@ def format_summary_file(filepath) -> None:
     try:
         logger.debug(f"{datetime.now()}: Starting Summary File Edit")
         # Step 1 - Split text into Blocks by tag
-        text = read_file(filepath)
+        text = read_file(input_file)
         summary = split_into_chunks(text, end_tag)
         # Step 2 - Split Blocks into Section by Heading
         for block_index, block in enumerate(summary):
@@ -213,7 +213,7 @@ def format_summary_file(filepath) -> None:
                     last_value, item = format_header(item, last_value)
 
     except FileNotFoundError:
-        logger.error(f"{datetime.now()}: Error: File not found at {filepath}")
+        logger.error(f"{datetime.now()}: Error: File not found at {input_file}")
         raise
     except Exception as e:
         logger.error(f"{datetime.now()}: An error occurred: {e}")
