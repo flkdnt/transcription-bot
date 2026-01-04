@@ -85,7 +85,7 @@ def convert_integer(text: str, old_integer: int, new_integer: int) -> str:
     escaped_old_integer = str(old_integer)
 
     # Perform the replacement using re.sub
-    modified_text = re.sub(escaped_old_integer, escaped_new_integer, text)
+    modified_text = re.sub(escaped_old_integer, escaped_new_integer, text, count=1)
 
     return modified_text
 
