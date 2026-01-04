@@ -171,16 +171,16 @@ def format_header(
     if value > 1:
         if re.search(r"introduction", header, re.IGNORECASE):
             header_list = send_prompt(
-                header_section,
-                "You are a silent editor\nReturn a Header based on the information provided\nKeep The existing header format",
+                input=header_section,
+                instructions="You are a silent editor\nReturn a Header based on the information provided\nKeep The existing header format",
                 host=llm_host,
                 model=llm_model,
             )
             logger.debug(f"Header {header} rewrite to {header_list}")
         elif re.search(r"conclusion", header, re.IGNORECASE) and last_section is False:
             header_list = send_prompt(
-                header_section,
-                "You are a silent editor\nReturn a Header based on the information provided\nKeep The existing header format",
+                input=header_section,
+                instructions="You are a silent editor\nReturn a Header based on the information provided\nKeep The existing header format",
                 host=llm_host,
                 model=llm_model,
             )
