@@ -162,7 +162,7 @@ def split_into_chunks(text: str, delimiter: str, replacement=None) -> list:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
 
     # Summary Edit
