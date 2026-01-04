@@ -189,22 +189,18 @@ def format_header(
 
     # Cleaning Up header itself
     if value > 1:
-        if re.search("introduction", header, re.IGNORECASE) and last_value > 1:
+        if (re.search("introduction", header, re.IGNORECASE) and last_value > 1) or (
+            re.search("conclusion", header, re.IGNORECASE) and last_section is False
+        ):
             header_list = send_prompt(
                 input=[header_section],
                 instructions="You are a silent editor\nReturn a Summuary of 12 words or less based on the information provided",
                 host=llm_host,
                 model=llm_model,
             )
-            logger.debug(f"Header {header} rewrite to {header_list[0]}")
-        elif re.search("conclusion", header, re.IGNORECASE) and last_section is False:
-            header_list = send_prompt(
-                input=[header_section],
-                instructions="You are a silent editor\nReturn a Summuary of 12 words or less based on the information provided",
-                host=llm_host,
-                model=llm_model,
-            )
-            logger.debug(f"Header {header} rewrite to {header_list[0]}")
+            new_header = f"**{last_value}. {header_list[0]}**"
+            logger.debug(f"Header {header} rewrite to {new_header}")
+            header = new_header
 
     return last_value, header
 
