@@ -217,7 +217,7 @@ def format_summary_file(
     header_format = "[*][*].*[*][*]"
     last_value = 0
     last_block = False
-    summary = []
+    formatted_summary = []
     try:
         logger.debug(f"{datetime.now()}: Starting Summary File Edit")
         # Step 1 - Split text into Blocks by tag
@@ -258,7 +258,7 @@ def format_summary_file(
                                 llm_model=llm_model,
                                 last_value=last_value,
                             )
-                            summary.append(f"{item}\n{section[0]}")
+                            formatted_summary.append(f"{item}\n{section[0]}")
                     # Middle Sections
                     else:
                         logger.debug(
@@ -271,7 +271,7 @@ def format_summary_file(
                             llm_model=llm_model,
                             last_value=last_value,
                         )
-                        summary.append(f"{item}\n{section[0]}")
+                        formatted_summary.append(f"{item}\n{section[0]}")
                 # Last Section
                 else:
                     # Check if it's the last block
@@ -289,7 +289,7 @@ def format_summary_file(
                             last_value=last_value,
                             last_section=last_block,
                         )
-                        summary.append(f"{item}\n{section[0]}")
+                        formatted_summary.append(f"{item}\n{section[0]}")
                     else:
                         section = split_into_chunks(block, item)
                         logger.debug(
@@ -302,9 +302,14 @@ def format_summary_file(
                             llm_model=llm_model,
                             last_value=last_value,
                         )
-                        summary.append(f"{item}\n{section[0]}")
+                        formatted_summary.append(f"{item}\n{section[0]}")
 
-        write_file(output_file, summary)
+        # for item in formatted_summary:
+        write_file(
+            output_file,
+            f"{formatted_summary}",
+            mode="a",
+        )
 
     except FileNotFoundError:
         logger.error(f"{datetime.now()}: Error: File not found at {input_file}")
