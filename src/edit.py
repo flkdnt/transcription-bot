@@ -4,7 +4,6 @@ import os
 import re
 from datetime import datetime
 
-from utility_llm import paginate_prompt, send_prompt
 from utility_os import format_path, read_file, write_file
 
 logger = logging.getLogger(__name__)
@@ -162,36 +161,8 @@ def split_into_chunks(text: str, delimiter: str, replacement=None) -> list:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    # --- LLM Configuration ---
-    ollama_model = ""
 
+    # Summary Edit
     repo_root = os.getcwd()
-    prompt_file = f"{repo_root}/prompts/transcript.prompt.md"
-    json_file = transcript = f"{repo_root}/downloads/FOLDER/video.info.json"
-    transcript = f"{repo_root}/downloads/FOLDER/video.en.vtt"
-    temp_transcript = f"{repo_root}/downloads/FOLDER/video.en.vtt.txt"
-    final_transcript = f"{repo_root}/downloads/FOLDER/edited_transcript.txt"
-
-    logger.info(f"{datetime.now()}: starting transcript edit")
-    # This is only for vtt files
-    format_vtt_file(transcript, temp_transcript)
-
-    # This section is only for Whisper transcripts
-    original_text = read_file(temp_transcript)
-    instructions = read_file(prompt_file)
-    details = "\n\n**TRANSCRIPT DETAILS**\n\n"
-    details += "*Please do not include this section in the transcript*!\n"
-    details += extract_metadata(json_file)
-    details += "\n\n**TRANSCRIPT**\n"
-    instructions = f"{instructions}{details}"
-    pages = paginate_prompt(original_text, chunk_size=4000, logger=logger)
-    for page in pages:
-        page = f"{details}{page}"
-    edited_text = send_prompt(
-        pages, instructions, ollama_model, num_ctx=5000, logger=logger
-    )
-
-    if edited_text:
-        write_file(final_transcript, edited_text)
-    else:
-        logger.warning(f"{datetime.now()}: No reponse to write to file!")
+    summary = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/summary.md"
+    format_summary_file(summary)
