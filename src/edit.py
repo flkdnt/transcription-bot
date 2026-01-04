@@ -271,6 +271,8 @@ def format_summary_file(input_file: str, llm_model: str, output_file: str) -> No
                         )
                         summary.append(f"{item}\n{section[0]}")
 
+        write_file(output_file, summary)
+
     except FileNotFoundError:
         logger.error(f"{datetime.now()}: Error: File not found at {input_file}")
         raise
