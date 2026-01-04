@@ -223,8 +223,13 @@ def format_summary_file(
         # Step 1 - Split text into Blocks by tag
         text = read_file(input_file)
         summary = split_into_chunks(text, end_tag)
+        summary_length = len(summary)
+        logger.debug(f"Summary Length: {summary_length}")
         # Step 2 - Split Blocks into Section by Heading
         for block_index, block in enumerate(summary):
+            if block_index > summary_length:
+                logger.debug("Initiating Emergency Break")
+                break
             logger.debug(f"Block Index: {block_index}")
             # Find All Headers
             headers = re.findall(header_format, block)
@@ -275,7 +280,7 @@ def format_summary_file(
                 # Last Section
                 else:
                     # Check if it's the last block
-                    if block_index == len(summary) - 1:
+                    if block_index == summary_length - 1:
                         last_block = True
                         section = split_into_chunks(block, item)
                         logger.debug(
