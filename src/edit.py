@@ -309,12 +309,12 @@ def format_summary_file(
                         )
                         formatted_summary.append(f"{item}\n{section[0]}")
 
-        # for item in formatted_summary:
-        write_file(
-            output_file,
-            f"{formatted_summary}",
-            mode="a",
-        )
+        for item in formatted_summary:
+            write_file(
+                output_file,
+                f"{item}",
+                mode="a",
+            )
 
     except FileNotFoundError:
         logger.error(f"{datetime.now()}: Error: File not found at {input_file}")
