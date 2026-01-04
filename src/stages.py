@@ -374,7 +374,7 @@ def stage_2(
     #           transcript_file=transcript_file,
     #        )
 
-    stage_2_2(input_file=outline_file, output_file=summary_file)
+    stage_2_2(input_file=outline_file, llm_model=llm_model, output_file=summary_file)
 
     logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {transcript_file}")
 
@@ -413,7 +413,9 @@ def stage_2_1(
         logger.warning(f"{datetime.now()}:Stage 2-1: No response to write to file!")
 
 
-def stage_2_2(input_file: str, output_file: str) -> None:
+def stage_2_2(input_file: str, llm_model: str, output_file: str) -> None:
     logger.info(f"{datetime.now()}:Stage 2-2: Formatting Summary File")
-    format_summary_file(input_file=input_file, output_file=output_file)
+    format_summary_file(
+        input_file=input_file, llm_model=llm_model, output_file=output_file
+    )
     logger.info(f"{datetime.now()}:Stage 2-2: Finished Formatting Summary File")
