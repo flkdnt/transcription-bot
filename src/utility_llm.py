@@ -71,6 +71,7 @@ def send_prompt(
     """
 
     try:
+        logger.debug(f"Passed Values:\n host: {host},\n model: {model},\n")
         formatted_text = []
 
         logger.debug(f"{datetime.now()}: Initializing LLM")
