@@ -181,7 +181,7 @@ def format_header(
     elif value > last_value:
         if value - last_value == 1:
             last_value = value
-            logger.debug(f"Header Integer is incrementing last_value: {header}")
+            logger.debug(f"Header Integer is incrementing last_value: {last_value}")
 
         else:
             logger.error("Skipped Header Numbers")
@@ -249,7 +249,7 @@ def format_summary_file(
                             # Trim Header from First Section
                             section = split_into_chunks(section[0], item)
                             logger.debug(
-                                f"Summary Block {index} '{item}': {section[0]}"
+                                f"Summary Block:{block_index} Section:{index} '{item}': {section[0]}"
                             )
                             last_value, item = format_header(
                                 header=item,
@@ -261,7 +261,9 @@ def format_summary_file(
                             summary.append(f"{item}\n{section[0]}")
                     # Middle Sections
                     else:
-                        logger.debug(f"Summary Block {index} '{item}': {section[0]}")
+                        logger.debug(
+                            f"Summary Block:{block_index} Section:{index} '{item}': {section[0]}"
+                        )
                         last_value, item = format_header(
                             header=item,
                             header_section=section[0],
@@ -277,7 +279,7 @@ def format_summary_file(
                         last_block = True
                         section = split_into_chunks(block, item)
                         logger.debug(
-                            f"Summary Block {block_index} '{item}': {section[0]}"
+                            f"Summary Block:{block_index} Section:{index} '{item}': {section[0]}"
                         )
                         last_value, item = format_header(
                             header=item,
@@ -290,7 +292,9 @@ def format_summary_file(
                         summary.append(f"{item}\n{section[0]}")
                     else:
                         section = split_into_chunks(block, item)
-                        logger.debug(f"Summary Block {index} '{item}': {section[0]}")
+                        logger.debug(
+                            f"Summary Block:{block_index} Section:{index} '{item}': {section[0]}"
+                        )
                         last_value, item = format_header(
                             header=item,
                             header_section=section[0],
