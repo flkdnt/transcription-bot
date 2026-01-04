@@ -342,39 +342,37 @@ def stage_2(
     chunk_size=2000,
     num_ctx=3000,
 ) -> None:
-    # if overwrite:
-    #    logger.info(
-    #        f"{datetime.now()}:Stage 2: Overwrite enabled, starting Summary"
-    #    )
-    #    # Create Summary with outline options
-    #    stage_2_1(
-    #        chunk_size=chunk_size,
-    #        llm_host=llm_host,
-    #        llm_model=llm_model,
-    #        num_ctx=num_ctx,
-    #        outline_file=outline_file,
-    #        outline_prompt=outline_prompt,
-    #        transcript_file=transcript_file,
-    #    )
+    if overwrite:
+        logger.info(f"{datetime.now()}:Stage 2: Overwrite enabled, starting Summary")
+        # Create Summary with outline options
+        stage_2_1(
+            chunk_size=chunk_size,
+            llm_host=llm_host,
+            llm_model=llm_model,
+            num_ctx=num_ctx,
+            outline_file=outline_file,
+            outline_prompt=outline_prompt,
+            transcript_file=transcript_file,
+        )
 
-    # else:
-    #    if os.path.exists(summary_file):
-    #        logger.info(
-    #            f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
-    #        )
-    #    else:
-    #        # Create Summary with outline options
-    #        stage_2_1(
-    #           chunk_size=chunk_size,
-    #           llm_host=llm_host,
-    #           llm_model=llm_model,
-    #           num_ctx=num_ctx,
-    #           outline_file=outline_file,
-    #           outline_prompt=outline_prompt,
-    #           transcript_file=transcript_file,
-    #        )
+    else:
+        if os.path.exists(summary_file):
+            logger.info(
+                f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
+            )
+        else:
+            # Create Summary with outline options
+            stage_2_1(
+                chunk_size=chunk_size,
+                llm_host=llm_host,
+                llm_model=llm_model,
+                num_ctx=num_ctx,
+                outline_file=outline_file,
+                outline_prompt=outline_prompt,
+                transcript_file=transcript_file,
+            )
 
-    stage_2_2(input_file=outline_file, llm_model=llm_model, output_file=summary_file)
+    # stage_2_2(input_file=outline_file, llm_model=llm_model, output_file=summary_file)
 
     logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {transcript_file}")
 
