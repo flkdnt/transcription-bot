@@ -138,6 +138,7 @@ def format_header(
     header: str,
     last_value: int,
     header_section: str,
+    llm_host: str,
     llm_model: str,
     last_section=False,
 ) -> tuple[int, str]:
@@ -172,6 +173,7 @@ def format_header(
             header_list = send_prompt(
                 header_section,
                 "You are a silent editor\nReturn a Header based on the information provided\nKeep The existing header format",
+                host=llm_host,
                 model=llm_model,
             )
             logger.debug(f"Header {header} rewrite to {header_list}")
@@ -179,6 +181,7 @@ def format_header(
             header_list = send_prompt(
                 header_section,
                 "You are a silent editor\nReturn a Header based on the information provided\nKeep The existing header format",
+                host=llm_host,
                 model=llm_model,
             )
             logger.debug(f"Header {header} rewrite to {header_list}")
@@ -186,7 +189,9 @@ def format_header(
     return last_value, header
 
 
-def format_summary_file(input_file: str, llm_model: str, output_file: str) -> None:
+def format_summary_file(
+    input_file: str, llm_host: str, llm_model: str, output_file: str
+) -> None:
     # start_tag = "**Outline**"
     end_tag = "**End Outline**\n"
     header_format = "[*][*].*[*][*]"
@@ -229,6 +234,7 @@ def format_summary_file(input_file: str, llm_model: str, output_file: str) -> No
                             last_value, item = format_header(
                                 header=item,
                                 header_section=section[0],
+                                llm_host=llm_host,
                                 llm_model=llm_model,
                                 last_value=last_value,
                             )
@@ -239,6 +245,7 @@ def format_summary_file(input_file: str, llm_model: str, output_file: str) -> No
                         last_value, item = format_header(
                             header=item,
                             header_section=section[0],
+                            llm_host=llm_host,
                             llm_model=llm_model,
                             last_value=last_value,
                         )
@@ -255,6 +262,7 @@ def format_summary_file(input_file: str, llm_model: str, output_file: str) -> No
                         last_value, item = format_header(
                             header=item,
                             header_section=section[0],
+                            llm_host=llm_host,
                             llm_model=llm_model,
                             last_value=last_value,
                             last_section=last_block,
@@ -266,6 +274,7 @@ def format_summary_file(input_file: str, llm_model: str, output_file: str) -> No
                         last_value, item = format_header(
                             header=item,
                             header_section=section[0],
+                            llm_host=llm_model,
                             llm_model=llm_model,
                             last_value=last_value,
                         )
@@ -380,5 +389,8 @@ if __name__ == "__main__":
     outline = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/outline.md"
     summary = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/summary.md"
     format_summary_file(
-        input_file=outline, llm_model="llama3.2:3b", output_file=summary
+        input_file=outline,
+        llm_host="http://ollama.hf.io:11434",
+        llm_model="llama3.2:3b",
+        output_file=summary,
     )
