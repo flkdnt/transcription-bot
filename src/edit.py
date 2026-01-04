@@ -151,9 +151,12 @@ def split_into_chunks(text: str, delimiter: str, replacement=None) -> list:
 
     if replacement:
         for item in split_text:
-            blocks.append(item + replacement)
+            if bool(item):
+                blocks.append(item + replacement)
     else:
-        blocks = split_text
+        for item in split_text:
+            if bool(item):
+                blocks.append(item)
 
     return blocks
 
