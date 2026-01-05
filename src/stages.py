@@ -339,12 +339,14 @@ def stage_2(
     transcript_file: str,
     highlight_prompt: str,
     outline_prompt: str,
-    overwrite=False,
     chunk_size=2000,
     num_ctx=3000,
 ) -> None:
-    if overwrite:
-        logger.info(f"{datetime.now()}:Stage 2: Overwrite enabled, starting Outline")
+    if os.path.exists(outline_file):
+        logger.info(
+            f"{datetime.now()}:Stage 2: Outline {outline_file} already exists, skipping Summary"
+        )
+    else:
         # Create Summary with outline options
         stage_2_1(
             chunk_size=chunk_size,
@@ -355,23 +357,6 @@ def stage_2(
             outline_prompt=outline_prompt,
             transcript_file=transcript_file,
         )
-
-    else:
-        if os.path.exists(outline_file):
-            logger.info(
-                f"{datetime.now()}:Stage 2: Outline {outline_file} already exists, skipping Summary"
-            )
-        else:
-            # Create Summary with outline options
-            stage_2_1(
-                chunk_size=chunk_size,
-                llm_host=llm_host,
-                llm_model=llm_model,
-                num_ctx=num_ctx,
-                outline_file=outline_file,
-                outline_prompt=outline_prompt,
-                transcript_file=transcript_file,
-            )
 
     if os.path.exists(summary_file):
         logger.info(

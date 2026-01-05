@@ -85,7 +85,6 @@ def main(
             transcript_file=transcript_file,
             highlight_prompt=highlight_prompt,
             outline_prompt=outline_prompt,
-            overwrite=True,
             chunk_size=10000,
             num_ctx=12000,
         )
