@@ -224,7 +224,7 @@ def format_summary_file(
         # Step 2 - Split Blocks into Section by Heading
         for block_index, block in enumerate(summary):
             if block_index > summary_length:
-                logger.debug("Initiating Emergency Break")
+                logger.warning("Initiating Emergency Break")
                 break
             logger.debug(f"Block Index: {block_index}")
             # Find All Headers
@@ -411,7 +411,7 @@ def split_into_chunks(text: str, delimiter: str, replacement=None) -> list:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
     # Summary Edit
