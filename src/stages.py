@@ -343,7 +343,7 @@ def stage_2(
     chunk_size=2000,
     num_ctx=3000,
 ) -> None:
-    if os.path.exists(outline_file):
+    if os.path.exists(summary_file):
         logger.info(
             f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
         )
