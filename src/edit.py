@@ -253,7 +253,7 @@ def format_header(
         ):
             header_list = send_prompt(
                 input=[header_section],
-                instructions="You are a silent editor\nReturn a Summuary of 12 words or less based on the information provided",
+                instructions="You are a silent editor\nReturn a Title of 5 words or less based on the information provided",
                 host=llm_host,
                 model=llm_model,
             )
