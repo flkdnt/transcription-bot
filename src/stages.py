@@ -411,7 +411,9 @@ def stage_2_1(
                 outline_file,
                 f"**Outline**\n{item}\n**End Outline**\n",
                 mode="a",
+                quiet=True,
             )
+        logger.info(f"{datetime.now()}: Successfully wrote to {outline_file}")
     else:
         logger.warning(f"{datetime.now()}:Stage 2-1: No response to write to file!")
 

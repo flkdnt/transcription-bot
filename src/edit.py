@@ -306,11 +306,13 @@ def format_summary_file(
                         formatted_summary.append(f"{item}\n{section[0]}\n")
 
         for item in formatted_summary:
-            write_file(
-                output_file,
-                f"{item}",
-                mode="a",
-            )
+            # Remove Triple-NewLines
+            while re.findall("\n\n\n", item):
+                logger.debug(f"{datetime.now()}: Removing Triple-Newlines")
+                item = re.sub("\n\n\n", "\n\n", item)
+            # Write to file
+            write_file(output_file, f"{item}", mode="a", quiet=True)
+        logger.info(f"{datetime.now()}: Successfully wrote to {output_file}")
 
     except FileNotFoundError:
         logger.error(f"{datetime.now()}: Error: File not found at {input_file}")

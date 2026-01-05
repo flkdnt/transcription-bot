@@ -177,7 +177,7 @@ def validate_file(path, start_filter, end_filter, return_path=False) -> str | bo
         raise  # Raise the FileNotFoundError
 
 
-def write_file(file_path, content, mode="w") -> None:
+def write_file(file_path, content, mode="w", quiet=False) -> None:
     """
     Writes content to a file.
 
@@ -204,7 +204,8 @@ def write_file(file_path, content, mode="w") -> None:
                 f.write("".join(str(i) for i in content))
             if type(content) is str:
                 f.write(content)
-        logger.info(f"{datetime.now()}: Successfully wrote to {file_path}")
+        if not quiet:
+            logger.info(f"{datetime.now()}: Successfully wrote to {file_path}")
     except Exception as e:
         logger.error(
             f"{datetime.now()}: An error occurred while writing to {file_path}: {e}"
