@@ -319,7 +319,7 @@ def format_summary_file(
                     if index == 0:
                         # Skipping Introductory statements
                         if re.search(
-                            "Here.*is.*(outline|summary|Outline|Summary)", section[0]
+                            "Here.*(outline|summary|Outline|Summary)", section[0]
                         ):
                             logger.debug(
                                 f"Skipping Block:{block_index} Section:{index}"
