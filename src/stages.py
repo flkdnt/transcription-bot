@@ -377,6 +377,7 @@ def stage_2(
         logger.info(
             f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
         )
+    else
         stage_2_2(
             input_file=outline_file,
             llm_host=llm_host,
