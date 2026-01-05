@@ -303,7 +303,7 @@ def format_summary_file(
                             llm_model=llm_model,
                             last_value=last_value,
                         )
-                        formatted_summary.append(f"{item}\n{section[0]}")
+                        formatted_summary.append(f"{item}\n{section[0]}\n")
 
         for item in formatted_summary:
             write_file(
