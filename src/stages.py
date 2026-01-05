@@ -393,10 +393,10 @@ def stage_2(
         num_ctx=25000,
         highlight_file=highlight_file,
         highlight_prompt=highlight_prompt,
-        transcript_file=transcript_file,
+        summary_file=transcript_file,
     )
 
-    logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {transcript_file}")
+    logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {summary_file}")
 
 
 def stage_2_1(
@@ -453,14 +453,14 @@ def stage_2_3(
     num_ctx: int,
     highlight_file: str,
     highlight_prompt: str,
-    transcript_file: str,
+    summary_file: str,
 ) -> None:
     logger.info(
-        f"{datetime.now()}:Stage 2-3: Starting Highlights for {transcript_file}"
+        f"{datetime.now()}:Stage 2-3: Starting Highlights for {summary_file}"
     )
-    # paginate transcript
-    transcript = read_file(transcript_file)
-    pages = paginate_prompt(transcript, chunk_size=chunk_size)
+    # paginate summary
+    summary = read_file(summary_file)
+    pages = paginate_prompt(summary, chunk_size=chunk_size)
 
     # Send to llm for processing
     outline = send_prompt(
