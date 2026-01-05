@@ -378,7 +378,7 @@ def stage_2(
         num_ctx=25000,
         highlight_file=highlight_file,
         highlight_prompt=highlight_prompt,
-        summary_file=transcript_file,
+        summary_file=summary_file,
     )
 
     logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {summary_file}")
