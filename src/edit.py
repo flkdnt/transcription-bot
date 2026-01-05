@@ -188,9 +188,9 @@ def format_header(
             raise
 
     # Cleaning Up header itself
-    if value > 1:
-        if (re.search("introduction", header, re.IGNORECASE) and last_value > 1) or (
-            re.search("conclusion", header, re.IGNORECASE) and last_section is False
+    if last_value > 1:
+        if (re.search("introduction", header, re.IGNORECASE) and (last_value > 1)) or (
+            re.search("conclusion", header, re.IGNORECASE) and (last_section is False)
         ):
             header_list = send_prompt(
                 input=[header_section],
