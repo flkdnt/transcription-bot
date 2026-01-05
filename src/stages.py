@@ -331,6 +331,7 @@ def stage_1_6(filepath: str) -> None:
 
 
 def stage_2(
+    directory: str,
     llm_host: str,
     llm_model: str,
     highlight_file: str,
@@ -381,6 +382,8 @@ def stage_2(
         summary_file=summary_file,
     )
 
+    # Final Step:
+    delete_files(directory=directory, name="outline.md")
     logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {summary_file}")
 
 

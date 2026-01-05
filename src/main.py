@@ -77,6 +77,7 @@ def main(
         outline_prompt = f"{repo_root}/prompts/outline.prompt.md"
 
         stage_2(
+            directory=transcript_directory,
             llm_host=llm_host,
             llm_model="llama3.2:3b",
             highlight_file=highlight_file,
