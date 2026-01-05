@@ -10,6 +10,20 @@ from utility_os import format_path, read_file, write_file
 logger = logging.getLogger(__name__)
 
 
+def clean_string(input_string):
+    """
+    Removes double or single quotation marks from a string.
+
+    Args:
+        input_string: The string to clean.
+
+    Returns:
+        A new string with all quotation marks removed.
+    """
+    cleaned_string = input_string.replace('"', "").replace("'", "")
+    return cleaned_string
+
+
 def convert_roman_numerals(text: str) -> tuple[int, str]:
     """
     Finds all occurrences of Roman numerals within a string.
@@ -198,7 +212,8 @@ def format_header(
                 host=llm_host,
                 model=llm_model,
             )
-            new_header = f"**{last_value}. {header_list[0]}**"
+            new_header = clean_string(header_list[0])
+            new_header = f"**{last_value}. {new_header}**"
             logger.debug(f"Header {header} rewrite to {new_header}")
             header = new_header
 
