@@ -26,14 +26,32 @@ def clean_string(input_string):
 
 def convert_roman_numerals(text: str) -> tuple[int, str]:
     """
-    Finds all occurrences of Roman numerals within a string.
+    Converts a string containing Roman numerals to its integer equivalent.
+
+    This function attempts to identify and convert Roman numeral patterns within a given
+    string into their corresponding integer values.  If successful, the original
+    string is updated to remove the Roman numeral representation and replace it with
+    the integer value.
 
     Args:
-        text: The input string to search.
+        text: The input string potentially containing Roman numerals.
 
     Returns:
-        A list of strings, where each string is a matched Roman numeral.
-        Returns an empty list if no Roman numerals are found.
+        A tuple containing:
+            - The integer value of the converted Roman numeral.
+            - The modified string with the Roman numeral replaced by its integer equivalent.
+
+    Raises:
+        TypeError: If the input argument `text` is not a string.
+        Exception: If any other unexpected error occurs during the process.
+
+    Example:
+        >>> convert_roman_numerals("I V XI")
+        (15, '1 5 11')
+        >>> convert_roman_numerals("XIV")
+        (14, '14')
+        >>> convert_roman_numerals("MCMLXXXIV")
+        (1984, '1984')
     """
     roman_pattern = r"\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b"
     roman_map = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
@@ -176,6 +194,33 @@ def format_header(
     llm_model: str,
     last_section=False,
 ) -> tuple[int, str]:
+    """
+    Formats a header string based on its content, integer value, and context.
+
+    This function processes a header string, potentially converting Roman numerals
+    to integers, updating the integer value if necessary, and reformatting the
+    header using an LLM if the formatting rules are met.
+
+    Args:
+        header: The header string to be formatted. This string may contain
+            Roman numerals or a numerical value.
+        last_value: The integer value of the previously formatted header.
+        header_section: The content of the section related to the header.
+        llm_host: The hostname or IP address of the LLM service.
+        llm_model: The name of the LLM model to use.
+        last_section: A boolean flag indicating whether this is the last section
+            in a group (True) or not (False).
+
+    Returns:
+        A tuple containing:
+            - The updated integer value of the header.
+            - The formatted header string.
+
+    Raises:
+        TypeError: If any of the arguments have an incorrect type.
+        Exception: If any other unexpected error occurs during the process.
+        ValueError: If the header contains invalid Roman numerals or integers.
+    """
     # Convert Roman Numerals(Assuming header has Roman Numerals)
     value, header = convert_roman_numerals(header)
     if value == 0:
@@ -223,6 +268,45 @@ def format_header(
 def format_summary_file(
     input_file: str, llm_host: str, llm_model: str, output_file: str
 ) -> None:
+    """
+    Formats a summary file by extracting and reformatting sections based on header patterns.
+
+    This function reads a text file containing a summary, splits it into sections
+    based on header patterns, and then formats those sections using an external LLM.
+    The formatted sections are written to a new output file.
+
+    Args:
+        input_file: The path to the input summary file to be formatted.
+        llm_host: The hostname or IP address of the LLM service.
+        llm_model: The name of the LLM model to use.
+        output_file: The path to the output file where the formatted summary will be written.
+
+    Returns:
+        None. The function directly writes the formatted summary to the output file.
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        Exception: If any other unexpected error occurs during the process.
+        TypeError: If any of the arguments have an incorrect type.
+
+    Example:
+        # Assume you have a file named 'summary.txt' with the following content:
+
+        # **Outline**
+        # **I. Introduction**
+        # **II. Main Body**
+        # **End Outline**
+        # **Outline**
+        # **III. Conclusion**
+        # **End Outline**
+
+        # After running format_summary_file("summary.txt", "localhost", "my_llm", "formatted_summary.txt"),
+        # the 'formatted_summary.txt' file will contain:
+
+        # 1. Introduction
+        # 2. Main Body
+        # 3. Conclusion
+    """
     # start_tag = "**Outline**"
     end_tag = "**End Outline**\n"
     header_format = "[*][*].*[*][*]"
@@ -404,12 +488,33 @@ def split_into_chunks(text: str, delimiter: str, replacement=None) -> list:
     Splits a text string into blocks based on a delimiter,
     handling multiple occurrences of the delimiter.
 
+    This function splits a given text string into a list of sub-strings
+    based on the specified delimiter. It handles multiple occurrences of
+    the delimiter by creating separate blocks for each segment.
+
     Args:
-        text: The input text string.
-        delimiter: The delimiter string to split the text by.
+        text: The input text string to be split.  This string should be
+              suitable for splitting based on the delimiter.
+        delimiter: The string used as a delimiter to split the text.
+                   This delimiter will be removed from the resulting chunks.
+        replacement: (Optional) A string to append to the end of each
+                     resulting chunk. If not provided, the chunks will
+                     contain the original text segments.
 
     Returns:
-        A list of strings, where each string is a block.
+        A list of strings, where each string represents a chunk of the
+        original text.  Empty chunks (strings containing only whitespace)
+        are excluded from the returned list.
+
+    Raises:
+        TypeError: If `text` is not a string.
+        TypeError: If `delimiter` is not a string.
+
+    Examples:
+        >>> split_into_chunks("apple,banana,cherry", ",")
+        ['apple', 'banana', 'cherry']
+        >>> split_into_chunks("apple;banana;cherry", ";", replacement=" - ")
+        ['apple - banana - cherry']
     """
 
     blocks = []
