@@ -64,27 +64,6 @@ def convert_roman_numerals(text: str) -> tuple[int, str]:
         test = test.group(0)
         if test:
             logger.debug(f"Roman Numeral Found: {test}")
-            # while i < len(test):
-            #    # Check if there's a next character to compare
-            #    if i + 1 < len(test) and roman_map[test[i]] < roman_map[test[i + 1]]:
-            #        # Subtracting case:  The next Roman numeral is smaller
-            #        # Subtract the value of the next numeral from the current numeral
-            #        result += roman_map[test[i + 1]] - roman_map[test[i]]
-            #        logger.debug(f"convert_roman_numerals: RESULT: {result}")
-            #        # Move the index past the two numerals we just processed
-            #        i += 2
-            #    else:
-            #        # Addition case: The next numeral is not smaller
-            #        # Add the value of the current numeral to the result
-            #        result += roman_map[test[i]]
-            #        i += 1
-            #        logger.debug(f"Roman Numerals converted: {result}")
-            #        # Replace the found Roman numeral with its integer value
-            #        text = re.sub(test, f"{result}", text)
-            #        logger.debug(f"New Header: {text}")
-            #        # Exit the loop after replacing the first occurrence
-            #        break
-            # Looping through the Roman Numeral string and adding the corresponding value to the result variable
             for i in range(len(test)):
                 if i > 0 and roman_map[test[i]] > roman_map[test[i - 1]]:
                     result += roman_map[test[i]] - 2 * roman_map[test[i - 1]]
