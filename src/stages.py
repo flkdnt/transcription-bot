@@ -345,7 +345,7 @@ def stage_2(
 ) -> None:
     if os.path.exists(outline_file):
         logger.info(
-            f"{datetime.now()}:Stage 2: Outline {outline_file} already exists, skipping Summary"
+            f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
         )
     else:
         # Create Summary with outline options
@@ -359,11 +359,7 @@ def stage_2(
             transcript_file=transcript_file,
         )
 
-    if os.path.exists(summary_file):
-        logger.info(
-            f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
-        )
-    else:
+        # Format Summary
         stage_2_2(
             input_file=outline_file,
             llm_host=llm_host,
