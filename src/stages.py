@@ -377,7 +377,7 @@ def stage_2(
         logger.info(
             f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
         )
-    else
+    else:
         stage_2_2(
             input_file=outline_file,
             llm_host=llm_host,
@@ -455,9 +455,7 @@ def stage_2_3(
     highlight_prompt: str,
     summary_file: str,
 ) -> None:
-    logger.info(
-        f"{datetime.now()}:Stage 2-3: Starting Highlights for {summary_file}"
-    )
+    logger.info(f"{datetime.now()}:Stage 2-3: Starting Highlights for {summary_file}")
     # paginate summary
     summary = read_file(summary_file)
     pages = paginate_prompt(summary, chunk_size=chunk_size)
