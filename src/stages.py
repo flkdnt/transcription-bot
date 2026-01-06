@@ -413,21 +413,15 @@ def stage_2_1(
     transcript = read_file(transcript_file)
     pages = paginate_prompt(transcript, chunk_size=chunk_size)
     prompt = """You are a silent and experienced editor.
-    You analyze transcripts of technical presentations.
-    You are only concerned about the facts presented.
+    You analyze transcripts of technical presentations and summarize them in an **Outline** Format.
 
-    **Instructions**
-
-    Objective: Summarize transcripts in the **Format** specification below.
-
-    * *DO* ensure the *Summary* is detailed.
-    * *DO NOT* analyze the tone or style of the presentation.
-    * *DO NOT* respond with anything other than the *Summary*.
-    * *DO NOT* include any subjective opinions in the *Summary*.
-
-    **Format**
-
-    - DO use Numbered Headings.
+    **Rules**
+    - *DO* Format in Markdown.
+    - *DO* use Numbered Headings that fit the following pattern: **HEADER_NUMBER. HEADER_TITLE**
+    - *DO* ensure the *Summary* is detailed.
+    - *DO NOT* analyze the tone or style of the presentation.
+    - *DO NOT* respond with anything other than the *Summary*.
+    - *DO NOT* include any subjective opinions in the *Summary*.
     """
 
     # Send to llm for processing
@@ -477,20 +471,20 @@ def stage_2_3(
     pages = paginate_prompt(summary, chunk_size=chunk_size)
 
     prompt = """You are an experienced editor.
-    You are to analyze this Summary to find the *TOP 20 MOST IMPORTANT Highlights* that are relevent to: Devops, Developers, and Large Enterprises.
+    You are to analyze this Summary to find the *MOST IMPORTANT HIGHLIGHTS* that are relevent to Developers and Devops Enginers at a Large Enterprise.
     You return your analysis in a concise list.
 
-    **Instructions:**
+    **Rules:**
 
-    * *Do* include:
+    - *Do* include:
       * key takeaways
       * product announcements
       * new functionality
       * improvements
       * technical capabilities
 
-    * *Do Not* add headers
-    * *Do Not* respond with anything other than the *Highlights*.
+    - *Do Not* add headers
+    - *Do Not* respond with anything other than the *Highlights*.
     """
 
     # Send to llm for processing
