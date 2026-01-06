@@ -113,7 +113,7 @@ def stage_1(
             # Delete media files now that we have a transcript to process
             logger.info(f"{datetime.now()}:Stage 1-7: Deleting Files")
             delete_files(directory=directory, prefix="video")
-            delete_files(directory=directory, name="subtitles.txt")
+            # delete_files(directory=directory, name="subtitles.txt")
             logger.info(f"{datetime.now()}:Stage 1-7: Finished Deleting Files")
 
         logger.info(f"{datetime.now()}:Stage 1: Finished Stage 1")
@@ -263,7 +263,34 @@ def stage_1_5(
 
     # Postfixing intructions
     subtitle = read_file(project_subtitles)
-    instructions = read_file(prompt)
+    # instructions = read_file(prompt)
+    instructions = """You are a silent, highly skilled, and meticulous transcription editor.
+    Your primary goal is to produce a clean, readable, and accurately formatted transcript.
+
+    **Instructions:**
+
+    - Respond *only* with the fully edited transcript. Do not include any introductory or explanatory text.
+
+    You will be provided a 2 part prompt:
+    - TRANSCRIPT DETAILS
+    - TRANSCRIPT
+
+    **For the TRANSCRIPT DETAILS section:**
+
+    This section contains additional context and metadata.
+
+     - It is provided in order to help you more accurately format the transcript, specifically names of Proper Nouns and Persons.
+     - *Do Not* include the TRANSCRIPT DETAILS in the edited transcript!
+
+    **For the TRANSCRIPT section:**
+
+    This is the unedited  transcript.
+
+    - Very lightly edit the transcript, the main concern is correcting any incorrect Proper Nouns, and formatting for readibility.
+    - Please Break up long paragraphs.
+    - Do Not Paraphrase, Narrate, or otherwise rewrite the text
+    """
+
     details = "\n\n**TRANSCRIPT DETAILS**\n\n"
     details += "*Please do not include this section in the transcript*!\n"
     extract = extract_metadata(project_json)
@@ -369,17 +396,17 @@ def stage_2(
 
     # Create Hightlight File
     stage_2_3(
-        chunk_size=20000,
+        chunk_size=30000,
         llm_host=llm_host,
         llm_model=llm_model,
-        num_ctx=25000,
+        num_ctx=35000,
         highlight_file=highlight_file,
         highlight_prompt=highlight_prompt,
         summary_file=summary_file,
     )
 
     # Final Step:
-    delete_files(directory=directory, name="outline.md")
+    # delete_files(directory=directory, name="outline.md")
     logger.info(f"{datetime.now()}:Stage 2: Finished Summary for {summary_file}")
 
 
@@ -396,11 +423,30 @@ def stage_2_1(
     # paginate transcript
     transcript = read_file(transcript_file)
     pages = paginate_prompt(transcript, chunk_size=chunk_size)
+    prompt = """You are a silent and experienced editor.
+    You analyze transcripts of technical presentations.
+    You are only concerned about the facts presented.
+
+    **Instructions**
+
+    Objective: Summarize transcripts in the **Format** specification below.
+
+    * *DO* ensure the *Outline* is detailed.
+    * *DO NOT* analyze the tone or style of the presentation.
+    * *DO NOT* respond with anything other than the *Outline*.
+    * *DO NOT* include any subjective opinions in the *Outline*.
+
+    **Format**
+
+    - Format the text in a Numerical **Outline** written in markdown.
+    - DO use headings.
+    - DO use Arabic Numerals at the beginning of each heading.
+    """
 
     # Send to llm for processing
     outline = send_prompt(
         input=pages,
-        instructions=outline_prompt,
+        instructions=prompt,
         model=llm_model,
         host=llm_host,
         num_ctx=num_ctx,
@@ -444,10 +490,27 @@ def stage_2_3(
     summary = read_file(summary_file)
     pages = paginate_prompt(summary, chunk_size=chunk_size)
 
+    prompt = """You are an experienced editor.
+    You are to analyze this Summary to find the *TOP 20 MOST IMPORTANT Highlights* that are relevent to: Devops, Developers, and Large Enterprises.
+    You return your analysis in a concise list.
+
+    **Instructions:**
+
+    * *Do* include:
+      * key takeaways
+      * product announcements
+      * new functionality
+      * improvements
+      * technical capabilities
+
+    * *Do Not* add headers
+    * *Do Not* respond with anything other than the *Highlights*.
+    """
+
     # Send to llm for processing
     outline = send_prompt(
         input=pages,
-        instructions=highlight_prompt,
+        instructions=prompt,
         model=llm_model,
         host=llm_host,
         num_ctx=num_ctx,
