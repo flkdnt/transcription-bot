@@ -45,7 +45,6 @@ def main(
     logger.info(f"{datetime.now()}: Main Function Starting")
     # Build full directories
     download_directory = f"{repo_root}/{audio_dir}"
-    transcript_prompt = f"{repo_root}/prompts/transcript.prompt.md"
 
     for url_file in url_list:
         url_file = f"{repo_root}/{input_dir}/{url_file}"
@@ -55,7 +54,6 @@ def main(
             directory=download_directory,
             llm_host=llm_host,
             llm_model=llm_model,
-            transcript_prompt=transcript_prompt,
             url_file=url_file,
             chunk_size=chunk_size,
             noplaylist=noplaylist,
@@ -73,8 +71,6 @@ def main(
         outline_file = f"{transcript_directory}/outline.md"
         summary_file = f"{transcript_directory}/summary.md"
         transcript_file = f"{transcript_directory}/transcript.txt"
-        highlight_prompt = f"{repo_root}/prompts/highlight.prompt.md"
-        outline_prompt = f"{repo_root}/prompts/outline.prompt.md"
 
         stage_2(
             directory=transcript_directory,
@@ -84,8 +80,6 @@ def main(
             outline_file=outline_file,
             summary_file=summary_file,
             transcript_file=transcript_file,
-            highlight_prompt=highlight_prompt,
-            outline_prompt=outline_prompt,
             chunk_size=10000,
             num_ctx=12000,
         )

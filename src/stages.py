@@ -19,7 +19,6 @@ def stage_1(
     directory: str,
     llm_host: str,
     llm_model: str,
-    transcript_prompt: str,
     url_file: str,
     chunk_size=2000,
     noplaylist="True",
@@ -39,7 +38,6 @@ def stage_1(
         directory: The directory where files will be stored and processed.
         llm_host: The hostname or IP address of the LLM service.
         llm_model: The name of the LLM model to use for transcript formatting.
-        transcript_prompt: The prompt to use when formatting the transcript with the LLM.
         url_file: The path to a file containing a list of URLs.
         chunk_size: The size of chunks to use when processing the transcript with the LLM.
         noplaylist: Flag indicating if a playlist should be ignored. Defaults to "True".
@@ -95,7 +93,6 @@ def stage_1(
                             llm_model=llm_model,
                             num_ctx=num_ctx,
                             project_subtitles=project_subtitles,
-                            prompt=transcript_prompt,
                         )
                     else:
                         logger.error(
@@ -113,7 +110,7 @@ def stage_1(
             # Delete media files now that we have a transcript to process
             logger.info(f"{datetime.now()}:Stage 1-7: Deleting Files")
             delete_files(directory=directory, prefix="video")
-            # delete_files(directory=directory, name="subtitles.txt")
+            delete_files(directory=directory, name="subtitles.txt")
             logger.info(f"{datetime.now()}:Stage 1-7: Finished Deleting Files")
 
         logger.info(f"{datetime.now()}:Stage 1: Finished Stage 1")
@@ -224,7 +221,6 @@ def stage_1_5(
     llm_model: str,
     num_ctx: int,
     project_subtitles: str,
-    prompt: str,
 ) -> None:
     """
     Formats Whisper transcripts using a Large Language Model (LLM).
@@ -243,7 +239,6 @@ def stage_1_5(
         num_ctx: The maximum number of tokens to use in the LLM context.
         project_subtitles: The path to the file containing the Whisper
             transcript.
-        prompt: The prompt to use when formatting the transcript with the LLM.
 
     Raises:
         Exception: If any error occurs during the formatting process.
@@ -263,7 +258,6 @@ def stage_1_5(
 
     # Postfixing intructions
     subtitle = read_file(project_subtitles)
-    # instructions = read_file(prompt)
     instructions = """You are a silent, highly skilled, and meticulous transcription editor.
     Your primary goal is to produce a clean, readable, and accurately formatted transcript.
 
@@ -365,8 +359,6 @@ def stage_2(
     outline_file: str,
     summary_file: str,
     transcript_file: str,
-    highlight_prompt: str,
-    outline_prompt: str,
     chunk_size=2000,
     num_ctx=3000,
 ) -> None:
@@ -382,7 +374,6 @@ def stage_2(
             llm_model=llm_model,
             num_ctx=num_ctx,
             outline_file=outline_file,
-            outline_prompt=outline_prompt,
             transcript_file=transcript_file,
         )
 
@@ -401,7 +392,6 @@ def stage_2(
         llm_model=llm_model,
         num_ctx=35000,
         highlight_file=highlight_file,
-        highlight_prompt=highlight_prompt,
         summary_file=summary_file,
     )
 
@@ -416,7 +406,6 @@ def stage_2_1(
     llm_model: str,
     num_ctx: int,
     outline_file: str,
-    outline_prompt: str,
     transcript_file: str,
 ) -> None:
     logger.info(f"{datetime.now()}:Stage 2-1: Starting Outline for {transcript_file}")
@@ -431,16 +420,14 @@ def stage_2_1(
 
     Objective: Summarize transcripts in the **Format** specification below.
 
-    * *DO* ensure the *Outline* is detailed.
+    * *DO* ensure the *Summary* is detailed.
     * *DO NOT* analyze the tone or style of the presentation.
-    * *DO NOT* respond with anything other than the *Outline*.
-    * *DO NOT* include any subjective opinions in the *Outline*.
+    * *DO NOT* respond with anything other than the *Summary*.
+    * *DO NOT* include any subjective opinions in the *Summary*.
 
     **Format**
 
-    - Format the text in a Numerical **Outline** written in markdown.
-    - DO use headings.
-    - DO use Arabic Numerals at the beginning of each heading.
+    - DO use Numbered Headings.
     """
 
     # Send to llm for processing
@@ -482,7 +469,6 @@ def stage_2_3(
     llm_model: str,
     num_ctx: int,
     highlight_file: str,
-    highlight_prompt: str,
     summary_file: str,
 ) -> None:
     logger.info(f"{datetime.now()}:Stage 2-3: Starting Highlights for {summary_file}")
