@@ -355,26 +355,28 @@ def stage_2(
     directory: str,
     llm_host: str,
     llm_model: str,
-    highlight_file: str,
-    outline_file: str,
-    summary_file: str,
-    transcript_file: str,
     chunk_size=2000,
     num_ctx=3000,
 ) -> None:
+    # Processing Files
+    highlight_file = f"{directory}/highlight.md"
+    summary_file = f"{directory}/summary.md"
+    temp_file_1 = f"{directory}/split-transcript.md"
+    transcript_file = f"{directory}/transcript.txt"
+
     if os.path.exists(summary_file):
         logger.info(
             f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
         )
     else:
-        # Create Summary with outline options
+        # Split the transcript
         stage_2_1(
             chunk_size=chunk_size,
             llm_host=llm_host,
             llm_model=llm_model,
             num_ctx=num_ctx,
-            outline_file=outline_file,
-            transcript_file=transcript_file,
+            output_file=temp_file_1,
+            input_file=transcript_file,
         )
 
         # Format Summary
@@ -405,12 +407,12 @@ def stage_2_1(
     llm_host: str,
     llm_model: str,
     num_ctx: int,
-    outline_file: str,
-    transcript_file: str,
+    output_file: str,
+    input_file: str,
 ) -> None:
-    logger.info(f"{datetime.now()}:Stage 2-1: Starting Outline for {transcript_file}")
+    logger.info(f"{datetime.now()}:Stage 2-1: Starting Outline for {input_file}")
     # paginate transcript
-    transcript = read_file(transcript_file)
+    transcript = read_file(input_file)
     pages = paginate_prompt(transcript, chunk_size=chunk_size)
     prompt = """You are a silent and experienced editor.
     You analyze transcripts of technical presentations and summarize them in an **Outline** Format.
@@ -436,12 +438,12 @@ def stage_2_1(
     if outline:
         for item in outline:
             write_file(
-                outline_file,
-                f"**Outline**\n{item}\n**End Outline**\n",
+                output_file,
+                f"**START BLOCK**\n{item}\n**END BLOCK**\n",
                 mode="a",
                 quiet=True,
             )
-        logger.info(f"{datetime.now()}:Stage 2-1: Successfully wrote to {outline_file}")
+        logger.info(f"{datetime.now()}:Stage 2-1: Successfully wrote to {output_file}")
     else:
         logger.warning(f"{datetime.now()}:Stage 2-1: No response to write to file!")
 

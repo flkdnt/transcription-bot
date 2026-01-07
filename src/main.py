@@ -67,21 +67,13 @@ def main(
 
     for transcript in transcripts:
         transcript_directory = format_path(transcript)
-        highlight_file = f"{transcript_directory}/highlight.md"
-        outline_file = f"{transcript_directory}/outline.md"
-        summary_file = f"{transcript_directory}/summary.md"
-        transcript_file = f"{transcript_directory}/transcript.txt"
 
         stage_2(
             directory=transcript_directory,
             llm_host=llm_host,
             llm_model="llama3.2:3b",
-            highlight_file=highlight_file,
-            outline_file=outline_file,
-            summary_file=summary_file,
-            transcript_file=transcript_file,
-            chunk_size=10000,
-            num_ctx=12000,
+            chunk_size=5000,
+            num_ctx=6000,
         )
 
     logger.info(f"{datetime.now()}: Main Function Finished")
@@ -105,6 +97,6 @@ if __name__ == "__main__":
         url_list=url_list,
         url_batch_size=url_batch_size,
         noplaylist=noplaylist,
-        chunk_size=4000,
-        num_ctx=5000,
+        chunk_size=5000,
+        num_ctx=6000,
     )
