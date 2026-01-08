@@ -361,7 +361,7 @@ def stage_2(
     # Processing Files
     highlight_file = f"{directory}/highlight.md"
     summary_file = f"{directory}/summary.md"
-    temp_file_1 = f"{directory}/split-transcript.md"
+    temp_file_1 = f"{directory}/chapters.md"
     transcript_file = f"{directory}/transcript.txt"
 
     if os.path.exists(summary_file):
@@ -369,7 +369,7 @@ def stage_2(
             f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
         )
     else:
-        # Split the transcript
+        # Split the transcript into Chapters
         stage_2_1(
             chunk_size=chunk_size,
             llm_host=llm_host,
@@ -415,19 +415,24 @@ def stage_2_1(
     transcript = read_file(input_file)
     pages = paginate_prompt(transcript, chunk_size=chunk_size)
     prompt = """You are a silent and experienced editor.
-    You analyze transcripts of technical presentations and summarize them in an **Outline** Format.
+    You are preparing a *TRANSCRIPT* for editing by separating it into logical *CHAPTERS* starting with a *HEADING*.
+    You split the transcript into a MAXIMUM of 5 chapters.
 
     **Rules**
-    - *DO* Format in Markdown.
-    - *DO* use Numbered Headings that fit the following pattern: **HEADER_NUMBER. HEADER_TITLE**
-    - *DO* ensure the *Summary* is detailed.
-    - *DO NOT* analyze the tone or style of the presentation.
-    - *DO NOT* respond with anything other than the *Summary*.
-    - *DO NOT* include any subjective opinions in the *Summary*.
+    - ALL *HEADINGS* should be formatted like this: ### HEADER_NUMBER. HEADER_TITLE
+    - Ensure the HEADER_NUMBER is a whole number(No Decimals).
+    - Ensure all HEADER_TITLES in the *HEADING* reflect the contents of that *SECTION* and contain no more that 8 words.
+    - DO NOT change, edit, or summarize the *TRANSCRIPT* contents.
+    - DO NOT respond with anything other than the edited *TRANSCRIPT*.
     """
 
+    # **Rules**
+    # - DO NOT analyze the tone or style of the presentation.
+    # - DO NOT respond with anything other than the *TRANSCRIPT*.
+    # - DO NOT include any subjective opinions in the *TRANSCRIPT*
+
     # Send to llm for processing
-    outline = send_prompt(
+    chapters = send_prompt(
         input=pages,
         instructions=prompt,
         model=llm_model,
@@ -435,11 +440,11 @@ def stage_2_1(
         num_ctx=num_ctx,
     )
 
-    if outline:
-        for item in outline:
+    if chapters:
+        for chapter in chapters:
             write_file(
                 output_file,
-                f"**START BLOCK**\n{item}\n**END BLOCK**\n",
+                f"{chapter}",
                 mode="a",
                 quiet=True,
             )
