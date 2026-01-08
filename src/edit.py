@@ -157,7 +157,7 @@ def find_integer(text: str) -> int:
     Returns:
         The integer value found in the string, or None if no integer is found.
     """
-    match = re.search(r"[0-9]{1-4}", text)
+    match = re.search(r"[0-9]{1,4}", text)
     logger.debug(f"find_integer: Match Object {match}")
     if match:
         return int(match.group(0))
