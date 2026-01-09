@@ -57,6 +57,26 @@ def extract_metadata(file_path) -> str | None:
 
 
 def format_header(header: str, index: int, prefix: str) -> str:
+    """Formats a header string with a sequential number prefix.
+
+    This function modifies a header string by adding a prefix (e.g., "1.", "2.")
+    and ensuring the number is correctly formatted, handling potential existing
+    numbers in the header.
+
+    Args:
+        header: The input header string.
+        index: The sequential index to be added as a prefix.
+        prefix: The prefix of the header to be filtered on (e.g., "###", "**").
+
+    Returns:
+        The modified header string with the formatted index.
+
+    Raises:
+        TypeError: If any of the input arguments have an incorrect type.
+
+    Example:
+        format_header("# This Is a MarkDown Header", 4, "#") == "# 4. This Is a MarkDown Header"
+    """
     # Starting count at 1
     index = index + 1
     # Find any current numbers
@@ -146,6 +166,41 @@ def format_vtt_file(vtt_file_path, output_file_path) -> None:
 
 
 def split_text(input_file: str, prefix: str, header=True) -> list:
+    """Splits a text file into sections based on a given prefix.
+
+    This function reads a text file, splits it into sections using a regular
+    expression that matches lines starting with the specified prefix, and returns
+    a list of dictionaries, where each dictionary represents a section
+    with the section header as the key and the section content as the value.
+
+    Args:
+        input_file: The path to the input text file to be split.
+        prefix: The prefix string to use for splitting the file.
+        header: A boolean flag indicating whether to format the header section
+                using the `format_header` function. Defaults to True.
+
+    Returns:
+        A list of dictionaries, where each dictionary represents a section
+        with the section header as the key and the section content as the
+        value.
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        Exception: If any other unexpected error occurs during the process.
+        TypeError: If any of the arguments have an incorrect type.
+
+    Example:
+        # Assume you have a file named 'input.txt' with the following content:
+        # ### Section 1
+        # This is the content of section 1.
+        # ### Section 2
+        # This is the content of section 2.
+
+        # After running split_text("input.txt", "###"),
+        # the function will return:
+        # [{'### Section 1': 'This is the content of section 1.',
+        #   '### Section 2': 'This is the content of section 2.'}]
+    """
     split_text = []
     filter = f"{prefix}.*"
 
@@ -212,4 +267,5 @@ if __name__ == "__main__":
     repo_root = os.getcwd()
     chapters = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/chapters.md"
     summary = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/summary.md"
-    pages = split_text(input_file=chapters, filter="###.*\n")
+    # Split text by Chapter
+    sections = split_text(input_file=chapters, prefix="###")
