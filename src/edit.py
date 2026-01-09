@@ -241,164 +241,7 @@ def format_header(
             logger.debug(f"Header {header} rewrite to {new_header}")
             header = new_header
 
-    return last_value, header
-
-
-def format_summary_file(
-    input_file: str, llm_host: str, llm_model: str, output_file: str
-) -> None:
-    """
-    Formats a summary file by extracting and reformatting sections based on header patterns.
-
-    This function reads a text file containing a summary, splits it into sections
-    based on header patterns, and then formats those sections using an external LLM.
-    The formatted sections are written to a new output file.
-
-    Args:
-        input_file: The path to the input summary file to be formatted.
-        llm_host: The hostname or IP address of the LLM service.
-        llm_model: The name of the LLM model to use.
-        output_file: The path to the output file where the formatted summary will be written.
-
-    Returns:
-        None. The function directly writes the formatted summary to the output file.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        Exception: If any other unexpected error occurs during the process.
-        TypeError: If any of the arguments have an incorrect type.
-
-    Example:
-        # Assume you have a file named 'summary.txt' with the following content:
-
-        # **Outline**
-        # **I. Introduction**
-        # **II. Main Body**
-        # **End Outline**
-        # **Outline**
-        # **III. Conclusion**
-        # **End Outline**
-
-        # After running format_summary_file("summary.txt", "localhost", "my_llm", "formatted_summary.txt"),
-        # the 'formatted_summary.txt' file will contain:
-
-        # 1. Introduction
-        # 2. Main Body
-        # 3. Conclusion
-    """
-    # start_tag = "**Outline**"
-    end_tag = "**End Outline**\n"
-    header_format = "[*][*].*[*][*]"
-    last_value = 0
-    last_block = False
-    formatted_summary = []
-    try:
-        logger.debug(f"{datetime.now()}: Starting Summary File Edit")
-        # Step 1 - Split text into Blocks by tag
-        text = read_file(input_file)
-        summary = split_into_chunks(text, end_tag)
-        summary_length = len(summary)
-        logger.debug(f"Summary Length: {summary_length}")
-        # Step 2 - Split Blocks into Section by Heading
-        for block_index, block in enumerate(summary):
-            if block_index > summary_length:
-                logger.warning("Initiating Emergency Break")
-                break
-            logger.debug(f"Block Index: {block_index}")
-            # Find All Headers
-            headers = re.findall(header_format, block)
-            for index, item in enumerate(headers):
-                # Access the next element using the current index + 1
-                next_index = index + 1
-                # Outline Sections
-                if next_index < len(headers):  # Add this check to prevent errors
-                    next_item = headers[next_index]
-                    section = split_into_chunks(block, next_item)
-                    block = section[1]
-                    # Section 0
-                    if index == 0:
-                        # Skipping Introductory statements
-                        if re.search(
-                            "((H|h)ere|(T|t)his).*(outline|summary|Outline|Summary)",
-                            section[0],
-                        ):
-                            logger.debug(
-                                f"Skipping Block:{block_index} Section:{index}"
-                            )
-                        else:
-                            # Trim Header from First Section
-                            section = split_into_chunks(section[0], item)
-                            logger.debug(
-                                f"Summary Block:{block_index} Section:{index} '{item}': {section[0]}"
-                            )
-                            last_value, item = format_header(
-                                header=item,
-                                header_section=section[0],
-                                llm_host=llm_host,
-                                llm_model=llm_model,
-                                last_value=last_value,
-                            )
-                            formatted_summary.append(f"{item}\n{section[0]}")
-                    # Middle Sections
-                    else:
-                        logger.debug(
-                            f"Summary Block:{block_index} Section:{index} '{item}': {section[0]}"
-                        )
-                        last_value, item = format_header(
-                            header=item,
-                            header_section=section[0],
-                            llm_host=llm_host,
-                            llm_model=llm_model,
-                            last_value=last_value,
-                        )
-                        formatted_summary.append(f"{item}\n{section[0]}")
-                # Last Section
-                else:
-                    # Check if it's the last block
-                    if block_index == summary_length - 1:
-                        last_block = True
-                        section = split_into_chunks(block, item)
-                        logger.debug(
-                            f"Summary Block:{block_index} Section:{index} '{item}': {section[0]}"
-                        )
-                        last_value, item = format_header(
-                            header=item,
-                            header_section=section[0],
-                            llm_host=llm_host,
-                            llm_model=llm_model,
-                            last_value=last_value,
-                            last_section=last_block,
-                        )
-                        formatted_summary.append(f"{item}\n{section[0]}")
-                    else:
-                        section = split_into_chunks(block, item)
-                        logger.debug(
-                            f"Summary Block:{block_index} Section:{index} '{item}': {section[0]}"
-                        )
-                        last_value, item = format_header(
-                            header=item,
-                            header_section=section[0],
-                            llm_host=llm_host,
-                            llm_model=llm_model,
-                            last_value=last_value,
-                        )
-                        formatted_summary.append(f"{item}\n{section[0]}\n")
-
-        for item in formatted_summary:
-            # Remove Triple-NewLines
-            while re.findall("\n\n\n", item):
-                logger.debug(f"{datetime.now()}: Removing Triple-Newlines")
-                item = re.sub("\n\n\n", "\n\n", item)
-            # Write to file
-            write_file(output_file, f"{item}", mode="a", quiet=True)
-        logger.info(f"{datetime.now()}: Successfully wrote to {output_file}")
-
-    except FileNotFoundError:
-        logger.error(f"{datetime.now()}: Error: File not found at {input_file}")
-        raise
-    except Exception as e:
-        logger.error(f"{datetime.now()}: An error occurred: {e}")
-        raise
+    return header
 
 
 def format_vtt_file(vtt_file_path, output_file_path) -> None:
@@ -463,66 +306,64 @@ def format_vtt_file(vtt_file_path, output_file_path) -> None:
         raise
 
 
-def split_into_chunks(text: str, delimiter: str, replacement=None) -> list:
-    """
-    Splits a text string into blocks based on a delimiter,
-    handling multiple occurrences of the delimiter.
+def split_text(input_file: str, filter: str) -> list:
+    split_text = []
 
-    This function splits a given text string into a list of sub-strings
-    based on the specified delimiter. It handles multiple occurrences of
-    the delimiter by creating separate blocks for each segment.
-
-    Args:
-        text: The input text string to be split.  This string should be
-              suitable for splitting based on the delimiter.
-        delimiter: The string used as a delimiter to split the text.
-                   This delimiter will be removed from the resulting chunks.
-        replacement: (Optional) A string to append to the end of each
-                     resulting chunk. If not provided, the chunks will
-                     contain the original text segments.
-
-    Returns:
-        A list of strings, where each string represents a chunk of the
-        original text.  Empty chunks (strings containing only whitespace)
-        are excluded from the returned list.
-
-    Raises:
-        TypeError: If `text` is not a string.
-        TypeError: If `delimiter` is not a string.
-
-    Examples:
-        >>> split_into_chunks("apple,banana,cherry", ",")
-        ['apple', 'banana', 'cherry']
-        >>> split_into_chunks("apple;banana;cherry", ";", replacement=" - ")
-        ['apple - banana - cherry']
-    """
-
-    blocks = []
-    split_text = text.split(delimiter)
-
-    if replacement:
-        for item in split_text:
-            if bool(item):
-                blocks.append(item + replacement)
-    else:
-        for item in split_text:
-            if bool(item):
-                blocks.append(item)
-
-    return blocks
+    try:
+        logger.debug(f"{datetime.now()}: Starting File Split")
+        # Step 1 - Read File and Grab divisions
+        text = read_file(input_file)
+        divisions = re.findall(filter, text)
+        for index, division in enumerate(divisions):
+            swap = []
+            section = []
+            # Access the next element using the current index + 1
+            next_index = index + 1
+            # logger.debug(f"{datetime.now()}: Index {index}: {division}")
+            # Sections
+            if next_index < len(divisions):  # Add this check to prevent errors
+                next_division = divisions[next_index]
+                # Right Trim - Split on next division
+                section = text.split(next_division)
+                # Iterate through split for only non-empty values
+                for item in section:
+                    if bool(item):
+                        swap.append(item)
+                # Left Trim - split on current division
+                section = swap[0].split(division)
+                swap = []
+                # Iterate through split for only non-empty values
+                for item in section:
+                    if bool(item):
+                        swap.append(item)
+                section = swap[1]
+            else:
+                # Left Trim - split on current division
+                section = text.split(division)
+                # Iterate through split for only non-empty values
+                for item in section:
+                    if bool(item):
+                        swap.append(item)
+                section = swap[1]
+            # logger.debug(f"Section {index}: '{division}': {section}")
+            split_text.append({f"{division}": f"{section}"})
+        # After List is built, Return Split Text
+        logger.debug(f"{datetime.now()}: Ending File Split")
+        return split_text
+    except FileNotFoundError:
+        logger.error(f"{datetime.now()}: Error: File not found at {input_file}")
+        raise
+    except Exception as e:
+        logger.error(f"{datetime.now()}: An error occurred: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
 
     # Summary Edit
     repo_root = os.getcwd()
-    outline = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/outline.md"
+    chapters = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/chapters.md"
     summary = f"{repo_root}/downloads/AWS_re_-Invent_2025_-_Keynote_with_CEO_Matt_Garman/summary.md"
-    format_summary_file(
-        input_file=outline,
-        llm_host="http://ollama.hf.io:11434",
-        llm_model="llama3.2:3b",
-        output_file=summary,
-    )
+    pages = split_text(input_file=chapters, filter="###.*\n")
