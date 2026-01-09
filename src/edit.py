@@ -145,8 +145,9 @@ def format_vtt_file(vtt_file_path, output_file_path) -> None:
         raise
 
 
-def split_text(input_file: str, filter: str) -> list:
+def split_text(input_file: str, prefix: str, header=True) -> list:
     split_text = []
+    filter = f"{prefix}.*"
 
     try:
         logger.debug(f"{datetime.now()}: Starting File Split")
@@ -185,6 +186,12 @@ def split_text(input_file: str, filter: str) -> list:
                         swap.append(item)
                 section = swap[1]
             # logger.debug(f"Section {index}: '{division}': {section}")
+            if header:
+                division = format_header(
+                    header=division,
+                    index=index,
+                    prefix="###",
+                )
             split_text.append({f"{division}": f"{section}"})
         # After List is built, Return Split Text
         logger.debug(f"{datetime.now()}: Ending File Split")
