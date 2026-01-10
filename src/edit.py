@@ -91,7 +91,7 @@ def format_header(header: str, index: int, prefix: str) -> str:
         TypeError: If any of the input arguments have an incorrect type.
 
     Example:
-        format_header("# This Is a MarkDown Header", 4, "#") == "# 4. This Is a MarkDown Header"
+        format_header("# This Is a MarkDown Header", 4, "#") == "# 4 This Is a MarkDown Header"
     """
     # Starting count at 1
     index = index + 1
@@ -111,7 +111,7 @@ def format_header(header: str, index: int, prefix: str) -> str:
         )
         # Escape Index Value
         escaped_new_integer = str(index)
-        escaped_new_integer = f"{prefix} {escaped_new_integer}."
+        escaped_new_integer = f"{prefix} {escaped_new_integer}"
         # Perform the replacement using re.sub
         header = re.sub(prefix, escaped_new_integer, header, count=1)
 
