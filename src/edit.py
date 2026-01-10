@@ -244,7 +244,7 @@ def split_text(input_file: str, prefix: str, header=True) -> list[dict[str, str]
                 division = format_header(
                     header=division,
                     index=index,
-                    prefix="###",
+                    prefix=prefix,
                 )
             split_text.append({f"{division}": f"{section}"})
         # After List is built, Return Split Text
