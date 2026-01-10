@@ -366,7 +366,7 @@ def stage_2(
 
     if os.path.exists(summary_file):
         logger.info(
-            f"{datetime.now()}:Stage 2: Summary {summary_file} already exists, skipping Summary"
+            f"{datetime.now()}:Stage 2: {summary_file} already exists, skipping Summary"
         )
     else:
         # Split the transcript into Chapters
