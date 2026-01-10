@@ -60,7 +60,7 @@ def delete_files(
         raise
 
 
-def find_files(root_dir, filename) -> list:
+def find_files(root_dir, filename) -> list[str]:
     """
     Recursively searches for a file within a given directory and its subdirectories.
 

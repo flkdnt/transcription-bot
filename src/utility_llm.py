@@ -7,7 +7,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 logger = logging.getLogger(__name__)
 
 
-def paginate_prompt(input, chunk_size=1000, chunk_overlap=0) -> list:
+def paginate_prompt(input, chunk_size=1000, chunk_overlap=0) -> list[str]:
     """
     Generates a list of pages from the input text, suitable for inclusion within an LLM prompt.
 
