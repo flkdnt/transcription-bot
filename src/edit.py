@@ -9,6 +9,23 @@ from utility_os import format_path, read_file, write_file
 logger = logging.getLogger(__name__)
 
 
+def contains_string(input_string: str, search_string: str) -> bool:
+    """
+    Checks if a search string is present within an input string using regular expressions.
+
+    Args:
+        input_string: The string to search within.
+        search_string: The string to search for.
+
+    Returns:
+        True if the search string is found within the input string, False otherwise.
+    """
+    if re.search(search_string, input_string, flags=re.IGNORECASE):
+        return True
+    else:
+        return False
+
+
 def extract_metadata(file_path) -> str | None:
     """
     Extracts specific fields from the video.info.json file using the json library.
