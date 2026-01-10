@@ -35,23 +35,34 @@ def download_audio(url, output_dir, noplaylist="False") -> str | None:
         os.makedirs(output_dir)
 
     options = {
-        "outtmpl": os.path.join(
-            f"{output_dir}/%(title)s", "video.%(ext)s"
-        ),  # Customize filename
+        # Customize filename
+        "outtmpl": os.path.join(f"{output_dir}/%(title)s", "video.%(ext)s"),
+        # Download Archive
+        "download_archive": f"{output_dir}/archive.txt",
+        # Integrate with the Logger object
         "logger": logger,
+        # Specifying site and Client
         "extractor_args": {"youtube": {"player_client": ["default"]}},
+        # Best Practice for file names
         "restrictfilenames": "True",
-        "format": "bestaudio",  # Download the best quality
+        # Download the best Audio quality
+        "format": "bestaudio",
+        # Only needed if we grab screenshots from video
         # "keepvideo": "True",
+        # noplaylist param(We might not want to download entire playlists)
         "noplaylist": noplaylist,
+        # Don't overwrite video/audio
         "overwrites": False,
+        # Needed for Metadata
         "writeinfojson": "True",
         "postprocessors": [
+            # Only needed if we grab screenshots from video
             # {  # Convert to m4a(mp4)
             #    "key": "FFmpegVideoConvertor",
             #    "preferedformat": "m4a",
             # },
-            {  # Extract audio using ffmpeg
+            # Extract audio using ffmpeg
+            {
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "wav",
                 "preferredquality": "192",
@@ -104,6 +115,8 @@ def download_subtitles(url, output_dir, noplaylist="False") -> str | None:
         "outtmpl": os.path.join(
             f"{output_dir}/%(title)s", "video.%(ext)s"
         ),  # Customize filename
+        # Download Archive
+        "download_archive": f"{output_dir}/archive.txt",
         "logger": logger,
         "extractor_args": {"youtube": {"player_client": ["default"]}},
         "restrictfilenames": "True",
@@ -173,9 +186,10 @@ def download_video(url, output_dir, noplaylist="False") -> str | None:
         os.makedirs(output_dir)
 
     options = {
-        "outtmpl": os.path.join(
-            f"{output_dir}/%(title)s", "video.%(ext)s"
-        ),  # Customize filename
+        # Customize filename
+        "outtmpl": os.path.join(f"{output_dir}/%(title)s", "video.%(ext)s"),
+        # Download Archive
+        "download_archive": f"{output_dir}/archive.txt",
         "logger": logger,
         "extractor_args": {"youtube": {"player_client": ["default"]}},
         "restrictfilenames": "True",
