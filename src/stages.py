@@ -369,15 +369,20 @@ def stage_2(
             f"{datetime.now()}:Stage 2: {summary_file} already exists, skipping Summary"
         )
     else:
-        # Split the transcript into Chapters
-        stage_2_1(
-            chunk_size=chunk_size,
-            llm_host=llm_host,
-            llm_model=llm_model,
-            num_ctx=num_ctx,
-            output_file=temp_file_1,
-            input_file=transcript_file,
-        )
+        if os.path.exists(chapter_file):
+            logger.info(
+                f"{datetime.now()}:Stage 2: {chapter_file} already exists, skipping Chapters"
+            )
+        else:
+            # Split the transcript into Chapters
+            stage_2_1(
+                chunk_size=chunk_size,
+                llm_host=llm_host,
+                llm_model=llm_model,
+                num_ctx=num_ctx,
+                output_file=chapter_file,
+                input_file=transcript_file,
+            )
 
         # Format Summary
         stage_2_2(
