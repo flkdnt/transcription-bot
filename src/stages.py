@@ -361,7 +361,7 @@ def stage_2(
     # Processing Files
     highlight_file = f"{directory}/highlight.md"
     summary_file = f"{directory}/summary.md"
-    temp_file_1 = f"{directory}/chapters.md"
+    chapter_file = f"{directory}/chapters.md"
     transcript_file = f"{directory}/transcript.txt"
 
     if os.path.exists(summary_file):
