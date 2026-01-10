@@ -384,9 +384,9 @@ def stage_2(
                 input_file=transcript_file,
             )
 
-        # Format Summary
+        # Create Summary
         stage_2_2(
-            input_file=outline_file,
+            input_file=chapter_file,
             llm_host=llm_host,
             llm_model=llm_model,
             output_file=summary_file,
