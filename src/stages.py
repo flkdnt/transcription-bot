@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 from download import download_audio, download_subtitles
-from edit import extract_metadata, format_summary_file, format_vtt_file
+from edit import extract_metadata, format_vtt_file, split_text
 from transcribe import transcribe_file
 from utility_llm import paginate_prompt, send_prompt
 from utility_os import (

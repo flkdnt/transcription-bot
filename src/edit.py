@@ -4,7 +4,6 @@ import os
 import re
 from datetime import datetime
 
-from utility_llm import send_prompt
 from utility_os import format_path, read_file, write_file
 
 logger = logging.getLogger(__name__)
