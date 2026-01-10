@@ -38,7 +38,7 @@ def download_audio(url, output_dir, noplaylist="False") -> str | None:
         # Customize filename
         "outtmpl": os.path.join(f"{output_dir}/%(title)s", "video.%(ext)s"),
         # Download Archive
-        "download_archive": f"{output_dir}/archive.txt",
+        # "download_archive": f"{output_dir}/archive.txt",
         # Integrate with the Logger object
         "logger": logger,
         # Specifying site and Client
@@ -116,7 +116,7 @@ def download_subtitles(url, output_dir, noplaylist="False") -> str | None:
             f"{output_dir}/%(title)s", "video.%(ext)s"
         ),  # Customize filename
         # Download Archive
-        "download_archive": f"{output_dir}/archive.txt",
+        # "download_archive": f"{output_dir}/archive.txt",
         "logger": logger,
         "extractor_args": {"youtube": {"player_client": ["default"]}},
         "restrictfilenames": "True",
@@ -189,7 +189,7 @@ def download_video(url, output_dir, noplaylist="False") -> str | None:
         # Customize filename
         "outtmpl": os.path.join(f"{output_dir}/%(title)s", "video.%(ext)s"),
         # Download Archive
-        "download_archive": f"{output_dir}/archive.txt",
+        # "download_archive": f"{output_dir}/archive.txt",
         "logger": logger,
         "extractor_args": {"youtube": {"player_client": ["default"]}},
         "restrictfilenames": "True",
