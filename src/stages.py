@@ -444,7 +444,7 @@ def stage_2_1(
         for chapter in chapters:
             write_file(
                 output_file,
-                f"{chapter}",
+                f"{chapter}\n",
                 mode="a",
                 quiet=True,
             )
