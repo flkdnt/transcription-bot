@@ -225,37 +225,48 @@ def split_text(input_file: str, prefix: str, header=True) -> list[dict[str, str]
         # Step 1 - Read File and Grab divisions
         text = read_file(input_file)
         divisions = re.findall(filter, text)
+        index_size = len(divisions)
         for index, division in enumerate(divisions):
-            swap = []
+            lt_raw = []
+            rt_raw = []
+            rt_section = []
             section = []
             # Access the next element using the current index + 1
             next_index = index + 1
             # logger.debug(f"{datetime.now()}: Index {index}: {division}")
             # Sections
-            if next_index < len(divisions):  # Add this check to prevent errors
+            if next_index < index_size:  # Add this check to prevent errors
                 next_division = divisions[next_index]
                 # Right Trim - Split on next division
-                section = text.split(next_division)
+                rt_section = text.split(next_division)
                 # Iterate through split for only non-empty values
-                for item in section:
+                for item in rt_section:
                     if bool(item):
-                        swap.append(item)
+                        rt_raw.append(item)
                 # Left Trim - split on current division
-                section = swap[0].split(division)
-                swap = []
-                # Iterate through split for only non-empty values
-                for item in section:
-                    if bool(item):
-                        swap.append(item)
-                section = swap[1]
+                lt_raw = rt_raw[0].split(division)
+
+                if len(lt_raw) > 1:
+                    section = lt_raw[1]
+                else:
+                    logger.debug(
+                        f"section: {section}\nrt_section: {rt_section}\nlt_raw: {lt_raw}\nrt_raw: {rt_raw}"
+                    )
+                    logger.error(
+                        f"ERROR SPLITTING TEXT: DIVISION {index}: {division} not found!"
+                    )
             else:
+                raw = []
+                section = []
                 # Left Trim - split on current division
-                section = text.split(division)
-                # Iterate through split for only non-empty values
-                for item in section:
-                    if bool(item):
-                        swap.append(item)
-                section = swap[1]
+                raw = text.split(division)
+                if len(raw) > 1:
+                    section = raw[1]
+                else:
+                    logger.debug(f"section: {section}\nraw: {raw}")
+                    logger.error(
+                        f"ERROR SPLITTING TEXT: LAST DIVISION{division} not found!"
+                    )
             # logger.debug(f"Section {index}: '{division}': {section}")
             if header:
                 division = format_header(
