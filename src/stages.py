@@ -464,7 +464,6 @@ def stage_2_1(
         - Ensure the HEADER_NUMBER is an Integer.
         - Ensure all HEADER_TITLES in the *HEADING* reflect the contents of that *SECTION* and contain no more that 8 words.
         - DO NOT Include the Word "Chapter" in the *HEADING*.
-        - DO NOT Include Astericks in the *HEADING*.
         - DO NOT change, edit, or summarize the *TRANSCRIPT* contents.
         - DO NOT respond with anything other than the edited *TRANSCRIPT*.
         """
