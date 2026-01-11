@@ -1,9 +1,16 @@
 import logging
 import os
+import re
 from datetime import datetime
 
 from download import download_audio, download_subtitles
-from edit import contains_string, extract_metadata, format_vtt_file, split_text
+from edit import (
+    contains_string,
+    extract_metadata,
+    format_header,
+    format_vtt_file,
+    split_text,
+)
 from transcribe import transcribe_file
 from utility_llm import paginate_prompt, send_prompt
 from utility_os import (
@@ -392,15 +399,15 @@ def stage_2(
             output_file=summary_file,
         )
 
-    # Create Hightlight File
-    stage_2_3(
-        chunk_size=30000,
-        llm_host=llm_host,
-        llm_model=llm_model,
-        num_ctx=35000,
-        highlight_file=highlight_file,
-        summary_file=summary_file,
-    )
+    ## Create Hightlight File
+    # stage_2_3(
+    #    chunk_size=30000,
+    #    llm_host=llm_host,
+    #    llm_model=llm_model,
+    #    num_ctx=35000,
+    #    highlight_file=highlight_file,
+    #    summary_file=summary_file,
+    # )
 
     # Final Step:
     # delete_files(directory=directory, name="outline.md")
@@ -415,57 +422,156 @@ def stage_2_1(
     output_file: str,
     input_file: str,
 ) -> None:
+    """Formats transcripts using a Large Language Model (LLM).
+
+    This function takes the raw transcript and formats it into a
+    more readable and polished format using the specified LLM. It handles
+    the interaction with the LLM, ensuring that the input is properly
+    formatted and the output is saved to a file.
+
+    Args:
+        chunk_size: The size of chunks to use when formatting the transcript
+            with the LLM.
+        llm_host: The hostname or IP address of the LLM service.
+        llm_model: The name of the LLM model to use for transcript formatting.
+        num_ctx: The maximum number of tokens to use in the LLM context.
+        output_file: The path to the output file where the formatted
+            transcript will be written.
+        input_file: The path to the audio file that was transcribed.
+
+    Raises:
+        Exception: If any error occurs during the formatting process.
+
+    Example:
+        # Assume you have a file named 'input.txt' with the following content:
+        # ... transcript content ...
+
+        # After running stage_2_1("input.txt", "localhost", "my_llm", 1024,
+        # "formatted_transcript.txt"):
+        # The 'formatted_transcript.txt' file will contain the formatted
+        # transcript, split into chapters with appropriate headings.
+    """
     logger.info(f"{datetime.now()}:Stage 2-1: Starting Outline for {input_file}")
     # paginate transcript
-    transcript = read_file(input_file)
-    pages = paginate_prompt(transcript, chunk_size=chunk_size)
-    prompt = """You are a silent and experienced editor.
-    You are preparing a *TRANSCRIPT* for editing by separating it into logical *CHAPTERS* starting with a *HEADING*.
-    You split the transcript into a MAXIMUM of 5 chapters.
+    try:
+        transcript = read_file(input_file)
+        pages = paginate_prompt(transcript, chunk_size=chunk_size)
+        prompt = """You are a silent and experienced editor.
+        You are preparing a *TRANSCRIPT* for editing by separating it into logical *CHAPTERS* starting with a *HEADING*.
+        You split the transcript into a MAXIMUM of 5 chapters.
 
-    **Rules**
-    - ALL *HEADINGS* should be formatted like this: ### HEADER_NUMBER. HEADER_TITLE
-    - Ensure the HEADER_NUMBER is a whole number(No Decimals).
-    - Ensure all HEADER_TITLES in the *HEADING* reflect the contents of that *SECTION* and contain no more that 8 words.
-    - DO NOT change, edit, or summarize the *TRANSCRIPT* contents.
-    - DO NOT respond with anything other than the edited *TRANSCRIPT*.
-    """
+        **Rules**
+        - ALL *HEADINGS* should be formatted as a Markdown H3 Header: ### HEADER_NUMBER HEADER_TITLE
+        - Ensure the HEADER_NUMBER is an Integer.
+        - Ensure all HEADER_TITLES in the *HEADING* reflect the contents of that *SECTION* and contain no more that 8 words.
+        - DO NOT Include the Word "Chapter" in the *HEADING*.
+        - DO NOT Include Astericks in the *HEADING*.
+        - DO NOT change, edit, or summarize the *TRANSCRIPT* contents.
+        - DO NOT respond with anything other than the edited *TRANSCRIPT*.
+        """
 
-    # **Rules**
-    # - DO NOT analyze the tone or style of the presentation.
-    # - DO NOT respond with anything other than the *TRANSCRIPT*.
-    # - DO NOT include any subjective opinions in the *TRANSCRIPT*
+        # **Rules**
+        # - DO NOT analyze the tone or style of the presentation.
+        # - DO NOT respond with anything other than the *TRANSCRIPT*.
+        # - DO NOT include any subjective opinions in the *TRANSCRIPT*
 
-    # Send to llm for processing
-    chapters = send_prompt(
-        input=pages,
-        instructions=prompt,
-        model=llm_model,
-        host=llm_host,
-        num_ctx=num_ctx,
-    )
+        # Send to llm for processing
+        chapters = send_prompt(
+            input=pages,
+            instructions=prompt,
+            model=llm_model,
+            host=llm_host,
+            num_ctx=num_ctx,
+        )
 
-    if chapters:
-        for chapter in chapters:
-            write_file(
-                output_file,
-                f"{chapter}\n",
-                mode="a",
-                quiet=True,
+        if chapters:
+            prefix = "###"
+            filter = f"{prefix}.*"
+            index = 0
+            for page in chapters:
+                divisions = re.findall(filter, page)
+
+                for old_division in divisions:
+                    division = re.sub(r"\*", "", old_division)
+                    division = format_header(
+                        header=division, index=index, prefix=prefix
+                    )
+                    logger.debug(f"{old_division} >>> {division}")
+                    page = re.sub(re.escape(old_division), division, page)
+                    index += 1
+
+                write_file(
+                    output_file,
+                    f"{page}\n\n",
+                    mode="a",
+                    quiet=True,
+                )
+            logger.info(
+                f"{datetime.now()}:Stage 2-1: Successfully wrote to {output_file}"
             )
-        logger.info(f"{datetime.now()}:Stage 2-1: Successfully wrote to {output_file}")
-    else:
-        logger.warning(f"{datetime.now()}:Stage 2-1: No response to write to file!")
+        else:
+            logger.warning(f"{datetime.now()}:Stage 2-1: No response to write to file!")
+
+    except Exception as e:
+        logger.exception(f"{datetime.now()}: An error occurred during Stage 2-1: {e}")
+        raise
 
 
 def stage_2_2(input_file: str, llm_host: str, llm_model: str, output_file: str) -> None:
-    logger.info(f"{datetime.now()}:Stage 2-2: Formatting Summary File")
-    format_summary_file(
-        input_file=input_file,
-        llm_host=llm_host,
-        llm_model=llm_model,
-        output_file=output_file,
-    )
+    logger.info(f"{datetime.now()}:Stage 2-2: Creating Summary File")
+    try:
+        # Split chapters into Dict
+        chapters = split_text(input_file=input_file, prefix="###")
+
+        prompt_title_and_content = """You are a silent editor.
+        Return a Title of 5 words or less based on the information provided.
+        Leave the format of the title the same, """
+        prompt_content = """
+        THIS is a prompt"""
+
+        # Iterate over chapters
+        for chapter in chapters:
+            for key in chapter:
+                # logger.info(f"{key}\n{chapter.get(key)}")
+                if contains_string(key, "introduction$") or contains_string(
+                    key, "conclusion$"
+                ):
+                    prompt = prompt_title_and_content
+                else:
+                    prompt = prompt_content
+
+    ## Cleaning Up header itself
+    # if index > 1:
+    #    if (re.search("introduction", header, re.IGNORECASE) and (index > 1)) or (
+    #        re.search("conclusion", header, re.IGNORECASE) and (last_section is False)
+    #    ):
+    #        header_list = send_prompt(
+    #            input=[header_section],
+    #            instructions="You are a silent editor\nReturn a Title of 5 words or less based on the information provided",
+    #            host=llm_host,
+    #            model=llm_model,
+    #        )
+    #        new_header = clean_string(header_list[0])
+    #        cleaned_string = input_string.replace('"', "").replace("'", "")
+    #        new_header = f"**{index}. {new_header}**"
+    #        logger.debug(f"Header {header} rewrite to {new_header}")
+    #        header = new_header
+
+    # for item in formatted_summary:
+    #    # Remove Triple-NewLines
+    #    while re.findall("\n\n\n", item):
+    #        logger.debug(f"{datetime.now()}: Removing Triple-Newlines")
+    #        item = re.sub("\n\n\n", "\n\n", item)
+    #    # Write to file
+    #    write_file(output_file, f"{item}", mode="a", quiet=True)
+    # logger.info(f"{datetime.now()}: Successfully wrote to {output_file}")
+
+    except Exception as e:
+        logger.exception(
+            f"{datetime.now()}:Stage 2-2: An error occurred during Stage 2-2: {e}"
+        )
+        raise
+
     logger.info(f"{datetime.now()}:Stage 2-2: Finished Formatting Summary File")
 
 
