@@ -468,11 +468,6 @@ def stage_2_1(
         - DO NOT respond with anything other than the edited *TRANSCRIPT*.
         """
 
-        # **Rules**
-        # - DO NOT analyze the tone or style of the presentation.
-        # - DO NOT respond with anything other than the *TRANSCRIPT*.
-        # - DO NOT include any subjective opinions in the *TRANSCRIPT*
-
         # Send to llm for processing
         chapters = send_prompt(
             input=pages,
