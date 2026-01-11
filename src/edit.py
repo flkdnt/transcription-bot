@@ -251,12 +251,6 @@ def split_text(input_file: str, prefix: str, header=True) -> list[dict[str, str]
                         f"ERROR SPLITTING TEXT: LAST DIVISION{division} not found!"
                     )
             # logger.debug(f"Section {index}: '{division}': {section}")
-            if header:
-                division = format_header(
-                    header=division,
-                    index=index,
-                    prefix=prefix,
-                )
             split_text.append({f"{division}": f"{section}"})
         # After List is built, Return Split Text
         logger.debug(f"{datetime.now()}: Ending File Split")
