@@ -5,7 +5,6 @@ from datetime import datetime
 
 from download import download_audio, download_subtitles
 from edit import (
-    contains_string,
     extract_metadata,
     format_header,
     format_vtt_file,
@@ -533,8 +532,8 @@ def stage_2_2(input_file: str, llm_host: str, llm_model: str, output_file: str) 
         for chapter in chapters:
             for key in chapter:
                 # logger.info(f"{key}\n{chapter.get(key)}")
-                if contains_string(key, "introduction$") or contains_string(
-                    key, "conclusion$"
+                if re.search(key, "introduction$", flags=re.IGNORECASE) or re.search(
+                    key, "conclusion$", flags=re.IGNORECASE
                 ):
                     prompt = prompt_title_and_content
                 else:
