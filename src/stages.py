@@ -513,51 +513,42 @@ def stage_2_1(
 def stage_2_2(input_file: str, llm_host: str, llm_model: str, output_file: str) -> None:
     logger.info(f"{datetime.now()}:Stage 2-2: Creating Summary File")
     try:
+        content = []
         # Split chapters into Dict
         chapters = split_text(input_file=input_file, prefix="###")
 
-        prompt_title_and_content = """You are a silent editor.
-        Return a Title of 5 words or less based on the information provided.
-        Leave the format of the title the same, """
-        prompt_content = """
-        THIS is a prompt"""
+        prompt = """You are a silent and experienced editor.
+        You are provided a **CONTENT** section.
+        Return a Summary of the **CONTENT**.
+
+        **Rules**
+        - DO NOT respond with anything other than the *CONTENT* Summary."""
 
         # Iterate over chapters
         for chapter in chapters:
             for key in chapter:
-                # logger.info(f"{key}\n{chapter.get(key)}")
-                if re.search(key, "introduction$", flags=re.IGNORECASE) or re.search(
-                    key, "conclusion$", flags=re.IGNORECASE
-                ):
-                    prompt = prompt_title_and_content
-                else:
-                    prompt = prompt_content
+                summary = send_prompt(
+                    input=[chapter.get(key)],
+                    instructions=prompt,
+                    host=llm_host,
+                    model=llm_model,
+                )
+                content.append(
+                    {
+                        "title": key,
+                        # "transcript": chapter.get(key),
+                        "summary": summary[0],
+                    }
+                )
 
-    ## Cleaning Up header itself
-    # if index > 1:
-    #    if (re.search("introduction", header, re.IGNORECASE) and (index > 1)) or (
-    #        re.search("conclusion", header, re.IGNORECASE) and (last_section is False)
-    #    ):
-    #        header_list = send_prompt(
-    #            input=[header_section],
-    #            instructions="You are a silent editor\nReturn a Title of 5 words or less based on the information provided",
-    #            host=llm_host,
-    #            model=llm_model,
-    #        )
-    #        new_header = clean_string(header_list[0])
-    #        cleaned_string = input_string.replace('"', "").replace("'", "")
-    #        new_header = f"**{index}. {new_header}**"
-    #        logger.debug(f"Header {header} rewrite to {new_header}")
-    #        header = new_header
-
-    # for item in formatted_summary:
-    #    # Remove Triple-NewLines
-    #    while re.findall("\n\n\n", item):
-    #        logger.debug(f"{datetime.now()}: Removing Triple-Newlines")
-    #        item = re.sub("\n\n\n", "\n\n", item)
-    #    # Write to file
-    #    write_file(output_file, f"{item}", mode="a", quiet=True)
-    # logger.info(f"{datetime.now()}: Successfully wrote to {output_file}")
+        for item in content:
+            ## Remove Triple-NewLines
+            # while re.findall("\n\n\n", item):
+            #    logger.debug(f"{datetime.now()}: Removing Triple-Newlines")
+            #    item = re.sub("\n\n\n", "\n\n", item)
+            # Write to file
+            section = f"{item.title}\n{item.summary}"
+            write_file(output_file, section, mode="a", quiet=True)
 
     except Exception as e:
         logger.exception(
