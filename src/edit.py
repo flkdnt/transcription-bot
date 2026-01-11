@@ -184,7 +184,7 @@ def format_vtt_file(vtt_file_path, output_file_path) -> None:
         raise
 
 
-def split_text(input_file: str, prefix: str, header=True) -> list[dict[str, str]]:
+def split_text(input_file: str, prefix: str) -> list[dict[str, str]]:
     """Splits a text file into sections based on a given prefix.
 
     This function reads a text file, splits it into sections using a regular
@@ -195,8 +195,6 @@ def split_text(input_file: str, prefix: str, header=True) -> list[dict[str, str]
     Args:
         input_file: The path to the input text file to be split.
         prefix: The prefix string to use for splitting the file.
-        header: A boolean flag indicating whether to format the header section
-                using the `format_header` function. Defaults to True.
 
     Returns:
         A list of dictionaries, where each dictionary represents a section
