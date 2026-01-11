@@ -149,6 +149,9 @@ def format_vtt_file(vtt_file_path, output_file_path) -> None:
         # Remove all newlines that dont have proper punctuation
         content = re.sub(r"((?<![?!.])\n)", " ", content)
 
+        # Remove markers
+        content = re.sub(r"&gt;", "", content)
+
         # Write Edited transcript
         with open(output_file_path, "w", encoding="utf-8") as outfile:
             outfile.write(content)
