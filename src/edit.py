@@ -82,21 +82,38 @@ def format_header(header: str, index: int, prefix: str) -> str:
     match = re.search(r"([0-9]{1,4}\.[0-9]{1,4})|([0-9]{1,4}\.)", header)
     # logger.debug(f"find_integer: Match Object {match}")
     if match:
-        # Escape Index Value
-        escaped_new_integer = str(index)
-        # Escape the old integer in the regex pattern to prevent it from being treated as a special character
-        escaped_old_integer = str(match.group(0))
-        # Perform the replacement using re.sub
-        header = re.sub(escaped_old_integer, escaped_new_integer, header, count=1)
+        if header.startswith(prefix):
+            # Escape Index Value
+            escaped_new_integer = str(index)
+            # Escape the old integer in the regex pattern to prevent it from being treated as a special character
+            escaped_old_integer = str(match.group(0))
+            # Perform the replacement using re.sub
+            header = re.sub(escaped_old_integer, escaped_new_integer, header, count=1)
+        else:
+            # Escape Index Value
+            escaped_new_integer = str(index)
+            escaped_new_integer = f"{prefix} {escaped_new_integer}"
+            # Escape the old integer in the regex pattern to prevent it from being treated as a special character
+            escaped_old_integer = str(match.group(0))
+            # Perform the replacement using re.sub
+            header = re.sub(escaped_old_integer, escaped_new_integer, header, count=1)
+
     else:
         logger.info(
             f"No Header Numbers found for {header}, inserting new Header Number"
         )
-        # Escape Index Value
-        escaped_new_integer = str(index)
-        escaped_new_integer = f"{prefix} {escaped_new_integer}"
-        # Perform the replacement using re.sub
-        header = re.sub(prefix, escaped_new_integer, header, count=1)
+        if header.startswith(prefix):
+            # Escape Index Value
+            escaped_new_integer = str(index)
+            escaped_new_integer = f"{prefix} {escaped_new_integer}"
+            # Perform the replacement using re.sub
+            header = re.sub(prefix, escaped_new_integer, header, count=1)
+        else:
+            # Escape Index Value
+            escaped_new_integer = str(index)
+            escaped_new_integer = f"{prefix} {escaped_new_integer}"
+            # Perform the replacement using re.sub
+            header = re.sub(r"^", escaped_new_integer, header, count=1)
 
     logger.debug(f"New Header Integer: {header}")
     return header
