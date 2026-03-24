@@ -390,23 +390,28 @@ def stage_2(
                 input_file=transcript_file,
             )
 
-        # Create Summary
-        stage_2_2(
-            input_file=chapter_file,
-            llm_host=llm_host,
-            llm_model=llm_model,
-            output_file=summary_file,
-        )
+        ## Create Summary
+        # stage_2_2(
+        #    input_file=chapter_file,
+        #    llm_host=llm_host,
+        #    llm_model=llm_model,
+        #    output_file=summary_file,
+        # )
 
-    ## Create Hightlight File
-    # stage_2_3(
-    #    chunk_size=30000,
-    #    llm_host=llm_host,
-    #    llm_model=llm_model,
-    #    num_ctx=35000,
-    #    highlight_file=highlight_file,
-    #    summary_file=summary_file,
-    # )
+    # if os.path.exists(highlight_file):
+    #    logger.info(
+    #        f"{datetime.now()}:Stage 2: {highlight_file} already exists, skipping Highlights"
+    #    )
+    # else:
+    #    # Create Hightlight File
+    #     stage_2_3(
+    #        chunk_size=30000,
+    #        llm_host=llm_host,
+    #        llm_model=llm_model,
+    #        num_ctx=35000,
+    #        highlight_file=highlight_file,
+    #        summary_file=summary_file,
+    #     )
 
     # Final Step:
     # delete_files(directory=directory, name="outline.md")
@@ -456,15 +461,13 @@ def stage_2_1(
         transcript = read_file(input_file)
         pages = paginate_prompt(transcript, chunk_size=chunk_size)
         prompt = """You are a silent and experienced editor.
-        You are preparing a *TRANSCRIPT* for editing by separating it into logical *CHAPTERS* starting with a *HEADING*.
-        You split the transcript into a MAXIMUM of 5 chapters.
+        You identify the major *TOPICS* in this *TRANSCRIPT*.
+        You insert the *TOPICS* into the transcript as a *HEADER*
 
-        **Rules**
-        - ALL *HEADINGS* should be formatted as a Markdown H3 Header: ### HEADER_NUMBER HEADER_TITLE
-        - Ensure the HEADER_NUMBER is an Integer.
-        - Ensure all HEADER_TITLES in the *HEADING* reflect the contents of that *SECTION* and contain no more that 8 words.
-        - DO NOT Include the Word "Chapter" in the *HEADING*.
-        - DO NOT change, edit, or summarize the *TRANSCRIPT* contents.
+        **Rules**.
+        - ALL *HEADERS* should be formatted as a Markdown H3 Header: ### HEADER_TITLE
+        - Ensure all HEADER_TITLES in the *HEADER* reflect the contents of that *TOPIC*.
+        - DO NOT change(delete, summareize, edit, etc.) the *TRANSCRIPT*.
         - DO NOT respond with anything other than the edited *TRANSCRIPT*.
         """
 
@@ -536,7 +539,6 @@ def stage_2_2(input_file: str, llm_host: str, llm_model: str, output_file: str) 
                 content.append(
                     {
                         "title": key,
-                        # "transcript": chapter.get(key),
                         "summary": summary[0],
                     }
                 )
@@ -547,7 +549,7 @@ def stage_2_2(input_file: str, llm_host: str, llm_model: str, output_file: str) 
             #    logger.debug(f"{datetime.now()}: Removing Triple-Newlines")
             #    item = re.sub("\n\n\n", "\n\n", item)
             # Write to file
-            section = f"{item.title}\n{item.summary}"
+            section = f"{item['title']}\n{item['summary']}\n\n"
             write_file(output_file, section, mode="a", quiet=True)
 
     except Exception as e:
