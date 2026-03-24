@@ -73,7 +73,7 @@ def main(
             llm_host=llm_host,
             llm_model="llama3.2:3b",
             chunk_size=5000,
-            num_ctx=6000,
+            num_ctx=7000,
         )
 
     logger.info(f"{datetime.now()}: Main Function Finished")
